@@ -1,6 +1,5 @@
 package www.zigdeal.shop.apiBatch.batch.readers;
 
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;

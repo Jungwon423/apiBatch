@@ -23,7 +23,6 @@ public class ExchangeRateConfiguration {
 
     @Bean
     public Job exchangeRateJob(Step exchangeRateStep) {
-        System.out.println("Job");
         return jobBuilderFactory.get("exchangeRateJob")
                 .start(exchangeRateStep)
                 .build();
@@ -32,7 +31,6 @@ public class ExchangeRateConfiguration {
 
     @Bean
     public Step exchangeRateStep(MongoItemWriter<ExchangeRate> exchangeRateMongoItemWriter) {
-        System.out.println("Step");
         return stepBuilderFactory.get("exchangeRateStep")
                 .<ExchangeRate, ExchangeRate>chunk(1)
                 .reader(exchangeRateItemReader())
@@ -42,13 +40,11 @@ public class ExchangeRateConfiguration {
 
     @Bean
     public ItemReader<ExchangeRate> exchangeRateItemReader() {
-        System.out.println("ItemReader");
         return new ExchangeRateReader();
     }
 
     @Bean
     public MongoItemWriter<ExchangeRate> exchangeRateMongoItemWriter(MongoTemplate mongoTemplate) {
-        System.out.println("ItemWriter");
         return new MongoItemWriterBuilder<ExchangeRate>()
                 .template(mongoTemplate)
                 .collection("exchangeRate")
