@@ -1,4 +1,4 @@
-package www.zigdeal.shop.apiBatch.batch;
+package www.zigdeal.shop.apiBatch.batch.exchangeRate;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -8,11 +8,12 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.data.MongoItemWriter;
 import org.springframework.batch.item.data.builder.MongoItemWriterBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import www.zigdeal.shop.apiBatch.batch.readers.ExchangeRateReader;
-import www.zigdeal.shop.apiBatch.domain.ExchangeRate;
+import www.zigdeal.shop.apiBatch.batch.exchangeRate.readers.ExchangeRateReader;
+import www.zigdeal.shop.apiBatch.batch.exchangeRate.domain.ExchangeRate;
 
 @RequiredArgsConstructor
 @Configuration
@@ -21,20 +22,23 @@ public class ExchangeRateConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     @Bean
-    public Job exchangeRateJob(Step exchangeRateStep) {
+    public Job exchangeRateJob() {
         return jobBuilderFactory.get("exchangeRateJob")
-                .start(exchangeRateStep)
+                .start(exchangeRateStep())
                 .build();
     }
 
 
     @Bean
-    public Step exchangeRateStep(MongoItemWriter<ExchangeRate> exchangeRateMongoItemWriter) {
+    public Step exchangeRateStep() {
         return stepBuilderFactory.get("exchangeRateStep")
                 .<ExchangeRate, ExchangeRate>chunk(1)
                 .reader(exchangeRateItemReader())
-                .writer(exchangeRateMongoItemWriter)
+                .writer(exchangeRateMongoItemWriter())
                 .build();
     }
 
@@ -44,12 +48,11 @@ public class ExchangeRateConfiguration {
     }
 
     @Bean
-    public MongoItemWriter<ExchangeRate> exchangeRateMongoItemWriter(MongoTemplate mongoTemplate) {
+    public MongoItemWriter<ExchangeRate> exchangeRateMongoItemWriter() {
         return new MongoItemWriterBuilder<ExchangeRate>()
                 .template(mongoTemplate)
                 .collection("exchangeRate")
                 .build();
     }
-
 
 }

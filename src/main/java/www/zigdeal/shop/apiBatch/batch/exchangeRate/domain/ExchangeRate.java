@@ -1,4 +1,4 @@
-package www.zigdeal.shop.apiBatch.domain;
+package www.zigdeal.shop.apiBatch.batch.exchangeRate.domain;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

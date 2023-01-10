@@ -1,4 +1,4 @@
-package www.zigdeal.shop.apiBatch.batch;
+package www.zigdeal.shop.apiBatch.batch.exchangeRate;
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
