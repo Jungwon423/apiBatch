@@ -24,6 +24,7 @@ dependencies {
 //	implementation 'org.springframework.boot:spring-boot-starter-quartz'
 	implementation 'org.jsoup:jsoup:1.15.3'
 	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+	implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.7.2'
 
 	compileOnly 'org.projectlombok:lombok'
 
