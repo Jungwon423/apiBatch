@@ -22,6 +22,7 @@ import www.zigdeal.shop.apiBatch.batch.product.domain.Product;
 
 import www.zigdeal.shop.apiBatch.batch.product.readers.AliExpressReader;
 
+import www.zigdeal.shop.apiBatch.batch.product.readers.AmazonReader;
 import www.zigdeal.shop.apiBatch.batch.product.service.PriceComparisonService;
 import www.zigdeal.shop.apiBatch.batch.product.service.TranslateService;
 
@@ -42,14 +43,15 @@ public class AliExpressConfiguration {
     private MongoTemplate mongoTemplate;
 
     @Bean
-    public Job AliExpressJob() {
+    public Job AliExpressJob() throws InterruptedException {
         return jobBuilderFactory.get("AliExpressJob")
                 .start(ProductStep())
+//                .next(ProductStep2())
                 .build();
     }
 
     @Bean
-    public Step ProductStep() {
+    public Step ProductStep(){
         return stepBuilderFactory.get("CollectProductStep")
                 .<Product, Product>chunk(10)
                 .reader(AliExpressItemReader())
@@ -59,8 +61,23 @@ public class AliExpressConfiguration {
     }
 
     @Bean
+    public Step ProductStep2() throws InterruptedException {
+        return stepBuilderFactory.get("CollectProductStep2")
+                .<Product, Product>chunk(10)
+                .reader(AmazonItemReader())
+                .processor(compositeItemProcessor())
+                .writer(productMongoItemWriter())
+                .build();
+    }
+
+    @Bean
     public ItemReader<Product> AliExpressItemReader() {
         return new AliExpressReader();
+    }
+
+    @Bean
+    public ItemReader<Product> AmazonItemReader() throws InterruptedException {
+        return new AmazonReader();
     }
 
     @Bean
