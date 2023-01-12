@@ -36,7 +36,7 @@ public class ExchangeRateConfiguration {
     @Bean
     public Step exchangeRateStep() {
         return stepBuilderFactory.get("exchangeRateStep")
-                .<ExchangeRate, ExchangeRate>chunk(1)
+                .<ExchangeRate, ExchangeRate>chunk(20)
                 .reader(exchangeRateItemReader())
                 .writer(exchangeRateMongoItemWriter())
                 .build();

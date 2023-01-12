@@ -30,15 +30,19 @@ public class AliExpressReader implements ItemReader<Product> {
 
     public AliExpressReader() { // 생성자로 links 초기화
         this.links = getProductLinks();
+        logger.info("생성자 초기화 성공! links 길이" + links.size());
     }
 
     @Override
     public Product read() {
-        logger.info(links.toString());
         if (idx < links.size()) {
             return getProductDetails(links.get(idx++));
         }
-        else return null;
+        else {
+            driver.close();
+            driver.quit();
+            return null;
+        }
     }
 
     public List<String> getProductLinks() {
@@ -56,12 +60,12 @@ public class AliExpressReader implements ItemReader<Product> {
 
         try {
             driver.get(TARGET_URL);
-//            var crawlingTime = new Date().getTime();
-//            while (new Date().getTime() < crawlingTime + 60000) { // 30000 = 30000 millisecond = 30 sec
-//                logger.info("while문 루프 도는 중");
-//                ((JavascriptExecutor)driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
-//            }
-            Thread.sleep(4000);
+            var crawlingTime = new Date().getTime();
+            while (new Date().getTime() < crawlingTime + 60000) { // 60000 = 60000 millisecond = 60 sec = 1 min
+                logger.info("while문 루프 도는 중");
+                ((JavascriptExecutor)driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
+            }
+            Thread.sleep(10000);
             List<WebElement> elements = driver.findElements(By.tagName("a"));
             logger.info("현재 읽어온 a 태그 수 : "+ elements.size());
             for (WebElement element : elements) {
@@ -69,9 +73,7 @@ public class AliExpressReader implements ItemReader<Product> {
                 if (link.length() < len || !(link.substring(0, len).equals(baseURL))) continue; // href가 없으면 continue
                 links.add(link);
             }
-            logger.info("현재 읽어온 product link 개수 : "+ links.size());
-            logger.info("크롤링 종료");
-            Thread.sleep(100000);
+            logger.info("link 크롤링 종료");
         }
         catch (Exception e){
             logger.error("에러 발생! : " + e);
@@ -82,17 +84,6 @@ public class AliExpressReader implements ItemReader<Product> {
 
     public Product getProductDetails(String link) {
 
-        System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
-
-        //Driver SetUp
-        ChromeOptions options = new ChromeOptions();
-        options.setCapability("ignoreProtectedModeSettings", true);
-        options.addArguments("--disable-popup-blocking");       //팝업안띄움
-        //options.addArguments("headless");                       //브라우저 안띄움
-        options.addArguments("__lang:euc-kr");
-        driver = new ChromeDriver(options);
-        String baseURL = "https://ko.aliexpress.com/item/";
-
         Product product = new Product();
         try {
             product.setLink(link);
@@ -101,7 +92,7 @@ public class AliExpressReader implements ItemReader<Product> {
             product.setLocale("kr");
             // TODO product.setTax() & product.setShippingFee()
             driver.get(link);
-            Thread.sleep(1000);
+            Thread.sleep(100);
 
             // name 크롤링
             WebElement productName = driver.findElement(By.className("product-title-text"));
@@ -109,34 +100,36 @@ public class AliExpressReader implements ItemReader<Product> {
 
             int discountRate;
             String price;
+
+
             try { // price, discountRate 크롤링
                 WebElement element = driver.findElement(By.className("uniform-banner-box-discounts"));
                 List<WebElement> spans = element.findElements(By.tagName("span"));
                 price = ToPrice(spans.get(0).getText());
-                logger.info(price);
+                logger.info("가격 : " + price);
                 discountRate = Integer.parseInt(spans.get(1).getText().replaceAll("[^0-9]", ""));
-                logger.info(String.valueOf(discountRate));
+                logger.info("할인율 : " + discountRate);
             }
             catch(Exception e){
                 WebElement element = driver.findElement(By.className("product-price-original"));
                 List <WebElement> elements = element.findElements(By.tagName("span"));
                 price = ToPrice(elements.get(0).getText());
-                logger.info(price);
+                logger.info("가격 : " + price);
                 discountRate = Integer.parseInt(elements.get(1).getText().replaceAll("[^0-9]", ""));
-                logger.info(String.valueOf(discountRate));
+                logger.info("할인율 : " + discountRate);
             }
 
             try{ // imageUrl 크롤링
                 WebElement element = driver.findElement(By.className("video-container"));
                 element = element.findElement(By.tagName("img"));
-                logger.info(element.getAttribute("src"));
+                logger.info("사진 링크 : " + element.getAttribute("src"));
                 product.setImageUrl(element.getAttribute("src"));
             }
             catch(Exception e){
                 WebElement element = driver.findElement(By.className("image-view-magnifier-wrap"));
                 element = element.findElement(By.tagName("img"));
                 logger.info(element.getAttribute("src"));
-                product.setImageUrl(element.getAttribute("src"));
+                logger.info("사진 링크 : " + element.getAttribute("src"));
             }
 
             // categoryName 크롤링
@@ -144,31 +137,29 @@ public class AliExpressReader implements ItemReader<Product> {
             ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView();", element);
             Thread.sleep(100);
             WebElement category = driver.findElement(By.className("parent-title"));
-            logger.info(category.getText());
+            logger.info("카테고리 이름 : " + category.getText());
             product.setCategoryName(category.getText());
 
             try { // productDescription 크롤링
                 WebElement description = driver.findElement(By.className("product-description"));
-                logger.info("productDescription : " +  description.getAttribute("innerHTML"));
+//                logger.info("productDescription : " +  description.getAttribute("innerHTML"));
             }
             catch(Exception e){
                 WebElement description = driver.findElement(By.className("product-overview"));
-                logger.info("productDescription : "+ description.getAttribute("innerHTML"));
+//                logger.info("productDescription : "+ description.getAttribute("innerHTML"));
             }
 
-            if (price.equals("NOPE")) return null;
+            if (price.equals("NOPE")) price = "-1";
             product.setPrice(Double.valueOf(price));
             product.setDiscountRate((double) discountRate);
-            logger.info("-------------------- 크롤링 결과 --------------------");
+            logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
             logger.info(product.toString());
-            logger.info("-------------------- 크롤링 결과 --------------------");
+            logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
 
         }
         catch(Exception e){
             e.printStackTrace();
         }
-        driver.close();
-        driver.quit();
         return product;
     }
 

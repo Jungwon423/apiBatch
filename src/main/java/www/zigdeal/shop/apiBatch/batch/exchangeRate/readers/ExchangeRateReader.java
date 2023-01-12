@@ -31,15 +31,14 @@ public class ExchangeRateReader implements ItemReader<ExchangeRate> {
             for (Object object : objectList) {
                 JSONObject jsonObject = (JSONObject) object;
                 if (!jsonObject.get("cur_unit").equals("USD")) {
-                    continue;
                 } else {
                     exchangeRate.setExchangeRate(Double.valueOf(((String) jsonObject.get("deal_bas_r")).replaceAll(",", "")));
-                    exchangeRate.setName("dollar");
+                    exchangeRate.setName("USD");
                 }
             }
 
             System.out.println("Itemreader running");
-            System.out.println(exchangeRate.toString());
+            System.out.println(exchangeRate);
             System.out.println(cnt);
         }
         return cnt <= 1 ? exchangeRate : null;

@@ -4,6 +4,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
+import www.zigdeal.shop.apiBatch.batch.ExchangeRepository;
 import www.zigdeal.shop.apiBatch.batch.product.domain.Product;
 
 import java.io.*;
@@ -17,9 +18,15 @@ import java.util.*;
 @Service
 public class PriceComparisonService {
 
+    ExchangeRepository exchangeRepository;
+
     public Product comparePrice(Product product) throws ParseException {
         String productName = product.getName();
-        Double productPrice = product.getPrice(); // TODO : filtering
+
+        product = CalculateKRWPrice(product);
+
+        // Price filtering
+        Double productPrice = product.getPrice();
         String responseBody = SearchAPI(productName);
         List<?> objectList = responseStrToList(responseBody);
 
@@ -31,9 +38,24 @@ public class PriceComparisonService {
             naverPrice = ObjectToDouble(li);
         }
 
+        if (productPrice > naverPrice) return null;
+
         product.setNaverPrice(naverPrice);
 
         return product;
+    }
+
+    public Product CalculateKRWPrice (Product product) {
+        Double productPrice = product.getPrice();
+        String currency = product.getCurrency();
+
+        if (currency.equals("KRW")) return product;
+        else {
+            Double USD = 0.0;
+            if (exchangeRepository.findById("USD").isPresent()) USD = exchangeRepository.findById("USD").get().getExchangeRate();
+            product.setPrice(productPrice*USD);
+            return product;
+        }
     }
 
     public String SearchAPI(String searchText){
@@ -44,7 +66,6 @@ public class PriceComparisonService {
         text = URLEncoder.encode(searchText, StandardCharsets.UTF_8);  // 이 부분을 변경해야함
 
         String apiURL = "https://openapi.naver.com/v1/search/shop?query=" + text + "&display=5&sort=asc";    // JSON 결과 (shop 결과)
-        //String apiURL = "https://openapi.naver.com/v1/search/shop.xml?query="+ text; // XML 결과
 
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put("X-Naver-Client-Id", clientId);

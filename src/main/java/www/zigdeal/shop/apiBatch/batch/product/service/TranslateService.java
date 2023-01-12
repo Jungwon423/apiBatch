@@ -18,7 +18,11 @@ import java.util.Map;
 @Service
 public class TranslateService {
 
-    public Product translateProduct(Product product) throws ParseException { // TODO : locale == "kr"일 경우 통과
+    public Product translateProduct(Product product) throws ParseException {
+
+        // locale == "kr" 일 경우 통과
+        if (product.getLocale().equals("kr")) return product;
+
         String clientId = "lFJbCyQgGPhrSLj2qOdX";//애플리케이션 클라이언트 아이디값";
         String clientSecret = "ifU2pLAcrc";//애플리케이션 클라이언트 시크릿값";
 

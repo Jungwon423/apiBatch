@@ -18,8 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import www.zigdeal.shop.apiBatch.batch.exchangeRate.domain.ExchangeRate;
-import www.zigdeal.shop.apiBatch.batch.exchangeRate.readers.ExchangeRateReader;
 import www.zigdeal.shop.apiBatch.batch.product.domain.Product;
 
 import www.zigdeal.shop.apiBatch.batch.product.readers.AliExpressReader;
@@ -34,7 +32,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Configuration
-public class ProductConfiguration {
+public class AliExpressConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final TranslateService translateService;
@@ -63,6 +61,7 @@ public class ProductConfiguration {
     @Bean
     public ItemReader<Product> AliExpressItemReader() {
         return new AliExpressReader();
+    }
 
     @Bean
     public MongoItemReader<Product> productMongoItemReader() {
@@ -77,22 +76,10 @@ public class ProductConfiguration {
         return mongoItemReader;
     }
 
-//    @Bean
-//    public MongoItemReader<Product> productMongoItemReader() {
-//        MongoItemReader<Product> mongoItemReader = new MongoItemReader<>();
-//        mongoItemReader.setTemplate(mongoTemplate);
-//        mongoItemReader.setCollection("products");
-//        mongoItemReader.setTargetType(Product.class);
-//        mongoItemReader.setQuery("{}");
-//        Map<String, Sort.Direction> sort = new HashMap<String, Sort.Direction>(1);
-//        sort.put("_id", Sort.Direction.ASC);
-//        mongoItemReader.setSort(sort);
-//        return mongoItemReader;
-//    }
-
     @Bean
     public CompositeItemProcessor compositeItemProcessor() {
         List<ItemProcessor> delagates = new ArrayList<>();
+        delagates.add(validateProcessor());
         delagates.add(translateProcessor());
         delagates.add(priceComparisonProcessor());
 
@@ -103,6 +90,12 @@ public class ProductConfiguration {
         return processor;
     }
 
+    public ItemProcessor<Product, Product> validateProcessor() {
+        return product -> {
+            if (product.getPrice() < 0) return null;
+            else return product;
+        };
+    }
     @Bean
     public ItemProcessor<Product, Product> translateProcessor() {
         return translateService::translateProduct;
