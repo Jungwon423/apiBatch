@@ -21,7 +21,9 @@ public class AmazonReader implements ItemReader<Product> {
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
     public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
     public static String TARGET_URL = "https://www.amazon.com/gp/goldbox?ref_=navm_nav_cs_gb";
-
+    public static int CrollingNumber = 70;
+    String pageUrlprefix = "https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb&deals-widget=%257B%2522version%2522%253A1%252C%2522viewIndex%2522%253A";
+    String pageUrlsuffix = "%252C%2522presetId%2522%253A%2522AE6BA37878475F9AE4C584B7AD5E12BE%2522%252C%2522sorting%2522%253A%2522BY_SCORE%2522%257D#";
 
     public AmazonReader() { // 생성자로 links 초기화
         this.links = CrawlSecondLevel();
@@ -39,46 +41,37 @@ public class AmazonReader implements ItemReader<Product> {
         }
     }
 
-    public List<String> CrawlFirstLevel(){
+    public List<String> CrawlFirstLevel() {
         System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
         ChromeOptions options = new ChromeOptions();
         options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
-
+        List<String> firstLinks = new ArrayList<>();
         driver = new ChromeDriver(options);
         driver.get(TARGET_URL);
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
+            ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
 
-        List<WebElement> elements = driver.findElements(By.className("DealGridItem-module__withoutActionButton_2OI8DAanWNRCagYDL2iIqN"));
-        List<String> firstLinks = new ArrayList<>();
-        for (WebElement elem : elements) { //elements로 받아서 temps로 addall 하면 오류가 떠서 String 리스트로 받았음.
-            firstLinks.add(elem.findElement(By.className("a-link-normal")).getAttribute("href"));
-        }
-        String pre = "https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb&deals-widget=%257B%2522version%2522%253A1%252C%2522viewIndex%2522%253A";
-        String suffix = "%252C%2522presetId%2522%253A%2522AE6BA37878475F9AE4C584B7AD5E12BE%2522%252C%2522sorting%2522%253A%2522BY_SCORE%2522%257D#";
-        for (int x = 0; x <= 1; x++) {     //x 페이지로 이동  (60개씩 받음) 3페이지면 180개
-            String newLink = pre + (x+1) * 60 + suffix;
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            List<WebElement> elements = driver.findElements(By.className("DealGridItem-module__withoutActionButton_2OI8DAanWNRCagYDL2iIqN"));
+            for (WebElement elem : elements) { //elements로 받아서 temps로 addall 하면 오류가 떠서 String 리스트로 받았음.
+                firstLinks.add(elem.findElement(By.className("a-link-normal")).getAttribute("href"));
             }
-            driver.get(newLink);
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            int pageNum = CrollingNumber/60;
+            if (pageNum >=1){
+                for (int x = 1; x <= pageNum; x++) {     //x 페이지로 이동  (60개씩 받음) 3페이지면 180개
+                    String newLink = pageUrlprefix + x * 60 + pageUrlsuffix;
+                    Thread.sleep(500);
+                    driver.get(newLink);
+                    Thread.sleep(1000);
+                    ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");  //스크롤
+                    List<WebElement> temps = driver.findElements(By.className("DealGridItem-module__withoutActionButton_2OI8DAanWNRCagYDL2iIqN"));
+                    for (WebElement temp : temps) {      //elements로 받아서 temps로 addall 하면 오류가 떠서 String 리스트로 받았음.
+                        firstLinks.add(temp.findElement(By.className("a-link-normal")).getAttribute("href"));
+                    }
+                }
             }
-            ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");  //스크롤
-            List<WebElement> temps = driver.findElements(By.className("DealGridItem-module__withoutActionButton_2OI8DAanWNRCagYDL2iIqN"));
-            for (WebElement temp : temps) {      //elements로 받아서 temps로 addall 하면 오류가 떠서 String 리스트로 받았음.
-                firstLinks.add(temp.findElement(By.className("a-link-normal")).getAttribute("href"));
-            }
+        } catch (Exception e) {
+            logger.error("firstLevel에서 에러남!");
         }
         logger.info("firstLevelLink 갯수: " + firstLinks.size());
         return firstLinks;
@@ -93,7 +86,8 @@ public class AmazonReader implements ItemReader<Product> {
         String comp3 = "https://www.amazon.com/stores/"; //stores 오류
         int len2 = comp3.length();
 
-        for (int i = 0; i < 15; i++) {      //링크 받고 싶은 만큼 선택 (걸러져서 조금 적게 나옴)
+        List<String> links = new ArrayList<>();
+        for (int i = 0; i < CrollingNumber; i++) {      //링크 받고 싶은 만큼 선택 (걸러져서 조금 적게 나옴)
             String testLink = firstLinks.get(i);
             try {
                 driver.get(testLink);
@@ -116,7 +110,7 @@ public class AmazonReader implements ItemReader<Product> {
                     if (link.substring(0, len).equals(comp2)) continue;   //gp로 홈페이지같은거 뜨는 거 제거
                     links.add(link);
                 } catch (Exception e2) {    //나머지 경우는 그냥 제외했음 어지럽다
-                    e.printStackTrace();
+                    logger.error("SecondLevel 예외 제외함");
                 }
             }
         }
@@ -126,18 +120,21 @@ public class AmazonReader implements ItemReader<Product> {
 
     public Product Crawl(String link) {
         Product product = new Product();
+        product.setLink(link);
+        logger.info(link);
+        product.setMarketName("Amazon");
+        product.setLocale("en");
+        product.setCurrency("USD");
         try {
-            product.setLink(link);
-            logger.info(link);
-            product.setMarketName("Amazon");
-            product.setLocale("en");
-
             driver.get(link);
             Thread.sleep(1000);
             WebElement productTitle = driver.findElement(By.id("productTitle"));
             product.setName(productTitle.getText()); //제품이름
             logger.info("제품이름 : " + productTitle.getText());
-
+        } catch (Exception e) {
+            product.setName("empty");
+        }
+        try {
             WebElement price = driver.findElement(By.className("a-price"));
             String priceText = price.getText();
             if (!priceText.contains(".")) {
@@ -147,49 +144,50 @@ public class AmazonReader implements ItemReader<Product> {
             priceText = priceText.replaceAll("[^0-9.]", "");
             product.setPrice(Double.parseDouble(priceText));  //가격
             logger.info("가격 : " + priceText);
+        } catch (Exception e) {
+            product.setPrice(-1d);
+        }
 
-            List<String> DiscountList = new ArrayList<>();
-            try {
-                WebElement dis = driver.findElement(By.className("savingsPercentage"));
-                String intDis = dis.getText().replaceAll("[^0-9]", "");
-                DiscountList.add(intDis);
-            } catch (Exception e) {
-                List<WebElement> ele = driver.findElements(By.className("a-color-price"));
-                for (int j = 3; j < 17; j++) {    //적당히 비교
-                    String discountRate = ele.get(j).getText();
-                    if (discountRate.contains("%")) {
-                        int a = discountRate.lastIndexOf("%");
-                        String dis = discountRate.substring(a - 2, a);
-                        DiscountList.add(dis);
-                    }
+        List<String> DiscountList = new ArrayList<>();
+        try {
+            WebElement dis = driver.findElement(By.className("savingsPercentage"));
+            String intDis = dis.getText().replaceAll("[^0-9]", "");
+            DiscountList.add(intDis);
+        } catch (Exception e) {
+            List<WebElement> ele = driver.findElements(By.className("a-color-price"));
+            for (int j = 3; j < 17; j++) {    //적당히 비교
+                String discountRate = ele.get(j).getText();
+                if (discountRate.contains("%")) {
+                    int a = discountRate.lastIndexOf("%");
+                    String dis = discountRate.substring(a - 2, a);
+                    DiscountList.add(dis);
                 }
             }
-            if (DiscountList.isEmpty()) {
-                product.setDiscountRate(0d); //할인율
-            } else {
-                String discount = DiscountList.get(0).replaceAll("[^0-9]", "");
-                product.setDiscountRate(Double.parseDouble(discount)); //할인율
-                logger.info(discount);
-            }
-
-            WebElement imgLink = driver.findElement(By.className("a-dynamic-image"));
-            product.setImageUrl(imgLink.getAttribute("src")); //이미지 링크
-            logger.info("이미지링크 : " + imgLink.getAttribute("src"));
-
-            try {    //카테고리 없는 사이트 예시 "https://www.amazon.com/Beats-Fit-Pro-Kim-Kardashian/dp/B0B6LW47C8?ref_=Oct_DLandingS_D_f56073f1_61&th=1"
-                WebElement category = driver.findElement(By.id("wayfinding-breadcrumbs_feature_div"));
-                WebElement category2 = category.findElement(By.className("a-link-normal"));
-                product.setCategoryName(category2.getText()); //카테고리
-                logger.info("카테고리 : " + category2.getText());
-            } catch (Exception e) {
-                product.setCategoryName(null);
-            }
-            logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
-            logger.info(product.toString());
-            logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+        if (DiscountList.isEmpty()) {
+            product.setDiscountRate(0d); //할인율
+        } else {
+            String discount = DiscountList.get(0).replaceAll("[^0-9]", "");
+            product.setDiscountRate(Double.parseDouble(discount)); //할인율
+            logger.info(discount);
+        }
+
+        WebElement imgLink = driver.findElement(By.className("a-dynamic-image"));
+        product.setImageUrl(imgLink.getAttribute("src")); //이미지 링크
+        logger.info("이미지링크 : " + imgLink.getAttribute("src"));
+
+        try {    //카테고리 없는 사이트 예시 "https://www.amazon.com/Beats-Fit-Pro-Kim-Kardashian/dp/B0B6LW47C8?ref_=Oct_DLandingS_D_f56073f1_61&th=1"
+            WebElement category = driver.findElement(By.id("wayfinding-breadcrumbs_feature_div"));
+            WebElement category2 = category.findElement(By.className("a-link-normal"));
+            product.setCategoryName(category2.getText()); //카테고리
+            logger.info("카테고리 : " + category2.getText());
+        } catch (Exception e) {
+            product.setCategoryName(null);
+        }
+        logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
+        logger.info(product.toString());
+        logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
+
         return product;
     }
 }

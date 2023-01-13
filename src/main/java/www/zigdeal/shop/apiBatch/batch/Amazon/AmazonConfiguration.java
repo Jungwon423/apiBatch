@@ -41,7 +41,7 @@ public class AmazonConfiguration {
 
     @Bean
     public Step AmazonStep(){
-        return stepBuilderFactory.get("eBayStep")
+        return stepBuilderFactory.get("AmazonStep")
                 .<Product, Product>chunk(10)
                 .reader(AmazonItemReader())
                 .processor(compositeItemProcessor())
