@@ -50,7 +50,7 @@ public class AliExpressReader implements ItemReader<Product> {
         ChromeOptions options = new ChromeOptions();
         options.setCapability("ignoreProtectedModeSettings", true);
         options.addArguments("--disable-popup-blocking");       //팝업안띄움
-		options.addArguments("headless");                       //브라우저 안띄움
+        options.addArguments("headless");                       //브라우저 안띄움
         options.addArguments("__lang:euc-kr");
         driver = new ChromeDriver(options);
         String baseURL = "https://ko.aliexpress.com/item/";
