@@ -1,4 +1,4 @@
-package www.zigdeal.shop.apiBatch.batch.product.domain;
+package www.zigdeal.shop.apiBatch.batch;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

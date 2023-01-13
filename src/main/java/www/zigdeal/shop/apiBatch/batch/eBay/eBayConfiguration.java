@@ -1,4 +1,4 @@
-package www.zigdeal.shop.apiBatch.batch.product;
+package www.zigdeal.shop.apiBatch.batch.eBay;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -18,13 +18,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import www.zigdeal.shop.apiBatch.batch.product.domain.Product;
+import www.zigdeal.shop.apiBatch.batch.Product;
 
-import www.zigdeal.shop.apiBatch.batch.product.readers.AliExpressReader;
-
-import www.zigdeal.shop.apiBatch.batch.product.readers.AmazonReader;
-import www.zigdeal.shop.apiBatch.batch.product.service.PriceComparisonService;
-import www.zigdeal.shop.apiBatch.batch.product.service.TranslateService;
+import www.zigdeal.shop.apiBatch.batch.AliExpress.service.PriceComparisonService;
+import www.zigdeal.shop.apiBatch.batch.AliExpress.service.TranslateService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +30,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Configuration
-public class AliExpressConfiguration {
+public class eBayConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final TranslateService translateService;
@@ -43,42 +40,27 @@ public class AliExpressConfiguration {
     private MongoTemplate mongoTemplate;
 
     @Bean
-    public Job AliExpressJob() throws InterruptedException {
-        return jobBuilderFactory.get("AliExpressJob")
+    public Job eBayJob() throws InterruptedException {
+        return jobBuilderFactory.get("eBayJob")
                 .start(ProductStep())
-//                .next(ProductStep2())
                 .build();
     }
 
     @Bean
     public Step ProductStep(){
-        return stepBuilderFactory.get("CollectProductStep")
+        return stepBuilderFactory.get("eBayStep")
                 .<Product, Product>chunk(10)
-                .reader(AliExpressItemReader())
+                .reader(eBayItemReader())
                 .processor(compositeItemProcessor())
                 .writer(productMongoItemWriter())
                 .build();
     }
 
     @Bean
-    public Step ProductStep2() throws InterruptedException {
-        return stepBuilderFactory.get("CollectProductStep2")
-                .<Product, Product>chunk(10)
-                .reader(AmazonItemReader())
-                .processor(compositeItemProcessor())
-                .writer(productMongoItemWriter())
-                .build();
+    public ItemReader<Product> eBayItemReader() {
+        return new eBayReader();
     }
 
-    @Bean
-    public ItemReader<Product> AliExpressItemReader() {
-        return new AliExpressReader();
-    }
-
-    @Bean
-    public ItemReader<Product> AmazonItemReader() throws InterruptedException {
-        return new AmazonReader();
-    }
 
     @Bean
     public MongoItemReader<Product> productMongoItemReader() {

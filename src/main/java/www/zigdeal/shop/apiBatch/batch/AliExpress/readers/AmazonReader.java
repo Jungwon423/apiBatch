@@ -1,4 +1,4 @@
-package www.zigdeal.shop.apiBatch.batch.product.readers;
+package www.zigdeal.shop.apiBatch.batch.AliExpress.readers;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -6,7 +6,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemReader;
-import www.zigdeal.shop.apiBatch.batch.product.domain.Product;
+import www.zigdeal.shop.apiBatch.batch.Product;
 
 import java.util.ArrayList;
 import java.util.List;
