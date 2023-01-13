@@ -9,24 +9,20 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemProcessor;
 
-import org.springframework.batch.item.data.MongoItemReader;
 import org.springframework.batch.item.data.MongoItemWriter;
 import org.springframework.batch.item.data.builder.MongoItemWriterBuilder;
 import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import www.zigdeal.shop.apiBatch.batch.Product;
 
-import www.zigdeal.shop.apiBatch.batch.AliExpress.service.PriceComparisonService;
-import www.zigdeal.shop.apiBatch.batch.AliExpress.service.TranslateService;
+import www.zigdeal.shop.apiBatch.service.PriceComparisonService;
+import www.zigdeal.shop.apiBatch.service.TranslateService;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Configuration
@@ -40,14 +36,14 @@ public class eBayConfiguration {
     private MongoTemplate mongoTemplate;
 
     @Bean
-    public Job eBayJob() throws InterruptedException {
+    public Job eBayJob() {
         return jobBuilderFactory.get("eBayJob")
-                .start(ProductStep())
+                .start(eBayStep())
                 .build();
     }
 
     @Bean
-    public Step ProductStep(){
+    public Step eBayStep(){
         return stepBuilderFactory.get("eBayStep")
                 .<Product, Product>chunk(10)
                 .reader(eBayItemReader())
@@ -59,20 +55,6 @@ public class eBayConfiguration {
     @Bean
     public ItemReader<Product> eBayItemReader() {
         return new eBayReader();
-    }
-
-
-    @Bean
-    public MongoItemReader<Product> productMongoItemReader() {
-        MongoItemReader<Product> mongoItemReader = new MongoItemReader<>();
-        mongoItemReader.setTemplate(mongoTemplate);
-        mongoItemReader.setCollection("products");
-        mongoItemReader.setTargetType(Product.class);
-        mongoItemReader.setQuery("{}");
-        Map<String, Sort.Direction> sort = new HashMap<>(1);
-        sort.put("_id", Sort.Direction.ASC);
-        mongoItemReader.setSort(sort);
-        return mongoItemReader;
     }
 
     @Bean

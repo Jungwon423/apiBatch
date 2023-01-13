@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import www.zigdeal.shop.apiBatch.batch.exchangeRate.readers.ExchangeRateReader;
-import www.zigdeal.shop.apiBatch.batch.exchangeRate.domain.ExchangeRate;
 
 @RequiredArgsConstructor
 @Configuration

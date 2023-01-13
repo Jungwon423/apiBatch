@@ -1,5 +1,6 @@
-package www.zigdeal.shop.apiBatch.batch.AliExpress.service;
+package www.zigdeal.shop.apiBatch.service;
 
+import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -16,9 +17,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class PriceComparisonService {
 
-    ExchangeRepository exchangeRepository;
+    private final ExchangeRepository exchangeRepository;
 
     public Product comparePrice(Product product) throws ParseException {
         String productName = product.getName();

@@ -1,5 +1,6 @@
-package www.zigdeal.shop.apiBatch.batch.AliExpress.service;
+package www.zigdeal.shop.apiBatch.service;
 
+import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class TranslateService {
 
     public Product translateProduct(Product product) throws ParseException {

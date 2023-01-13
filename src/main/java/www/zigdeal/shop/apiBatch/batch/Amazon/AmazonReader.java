@@ -1,4 +1,4 @@
-package www.zigdeal.shop.apiBatch.batch.AliExpress.readers;
+package www.zigdeal.shop.apiBatch.batch.Amazon;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;

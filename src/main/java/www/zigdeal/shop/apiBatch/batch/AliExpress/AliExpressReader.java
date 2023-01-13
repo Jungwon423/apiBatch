@@ -1,4 +1,4 @@
-package www.zigdeal.shop.apiBatch.batch.AliExpress.readers;
+package www.zigdeal.shop.apiBatch.batch.AliExpress;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;

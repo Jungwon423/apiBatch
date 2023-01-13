@@ -1,8 +1,7 @@
-package www.zigdeal.shop.apiBatch.batch.exchangeRate.readers;
+package www.zigdeal.shop.apiBatch.batch.exchangeRate;
 
 import  lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.ItemReader;
-import www.zigdeal.shop.apiBatch.batch.exchangeRate.domain.ExchangeRate;
 import org.json.simple.*;
 import org.json.simple.parser.*;
 
@@ -25,7 +24,7 @@ public class ExchangeRateReader implements ItemReader<ExchangeRate> {
         cnt++;
         ExchangeRate exchangeRate = new ExchangeRate();
         if (cnt <= 1) {
-            String responseBody = APIReader(exchangeRate);
+            String responseBody = APIReader();
             List<Object> objectList = responseStrToList(responseBody);
 
             for (Object object : objectList) {
@@ -55,7 +54,7 @@ public class ExchangeRateReader implements ItemReader<ExchangeRate> {
         return objectList;
     }
 
-    public String APIReader(ExchangeRate exchangeRate) {
+    public String APIReader() {
         JSONParser parser = new JSONParser();
 //        String AuthKey = "e4lofYKs4QdnWUW6eAoSHTAzJkNncSGf";
         String AuthKey = "b0MB3AsOJ5wqkU3q1RiDzZjDfJiEVZbn";
