@@ -81,7 +81,6 @@ public class AmazonReader implements ItemReader<Product> {
             }
         }
         logger.info("firstLevelLink 갯수: " + firstLinks.size());
-        driver.quit();
         return firstLinks;
     }
 
