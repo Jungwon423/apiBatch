@@ -23,13 +23,13 @@ public class AmazonReader implements ItemReader<Product> {
     public static String TARGET_URL = "https://www.amazon.com/gp/goldbox?ref_=navm_nav_cs_gb";
 
 
-    public AmazonReader() throws InterruptedException { // 생성자로 links 초기화
+    public AmazonReader() { // 생성자로 links 초기화
         this.links = CrawlSecondLevel();
         logger.info("생성자 초기화 성공! links 길이" + links.size());
     }
 
     @Override
-    public Product read() throws InterruptedException {
+    public Product read() {
         if (idx < links.size()) {
             return Crawl(links.get(idx++));
         } else {
@@ -39,17 +39,21 @@ public class AmazonReader implements ItemReader<Product> {
         }
     }
 
-    public List<String> CrawlFirstLevel() throws InterruptedException {
+    public List<String> CrawlFirstLevel(){
         System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
         ChromeOptions options = new ChromeOptions();
         options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
 
-        WebDriver driver2 = new ChromeDriver(options);
-        driver2.get(TARGET_URL);
-        Thread.sleep(1000);
-        ((JavascriptExecutor) driver2).executeScript("window.scrollTo(0, document.body.scrollHeight)");
+        driver = new ChromeDriver(options);
+        driver.get(TARGET_URL);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
 
-        List<WebElement> elements = driver2.findElements(By.className("DealGridItem-module__withoutActionButton_2OI8DAanWNRCagYDL2iIqN"));
+        List<WebElement> elements = driver.findElements(By.className("DealGridItem-module__withoutActionButton_2OI8DAanWNRCagYDL2iIqN"));
         List<String> firstLinks = new ArrayList<>();
         for (WebElement elem : elements) { //elements로 받아서 temps로 addall 하면 오류가 떠서 String 리스트로 받았음.
             firstLinks.add(elem.findElement(By.className("a-link-normal")).getAttribute("href"));
@@ -58,25 +62,30 @@ public class AmazonReader implements ItemReader<Product> {
         String suffix = "%252C%2522presetId%2522%253A%2522AE6BA37878475F9AE4C584B7AD5E12BE%2522%252C%2522sorting%2522%253A%2522BY_SCORE%2522%257D#";
         for (int x = 0; x <= 1; x++) {     //x 페이지로 이동  (60개씩 받음) 3페이지면 180개
             String newLink = pre + (x+1) * 60 + suffix;
-            Thread.sleep(500);
-            driver2.get(newLink);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            driver.get(newLink);
 
-            Thread.sleep(1000);
-            ((JavascriptExecutor) driver2).executeScript("window.scrollTo(0, document.body.scrollHeight)");  //스크롤
-            List<WebElement> temps = driver2.findElements(By.className("DealGridItem-module__withoutActionButton_2OI8DAanWNRCagYDL2iIqN"));
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");  //스크롤
+            List<WebElement> temps = driver.findElements(By.className("DealGridItem-module__withoutActionButton_2OI8DAanWNRCagYDL2iIqN"));
             for (WebElement temp : temps) {      //elements로 받아서 temps로 addall 하면 오류가 떠서 String 리스트로 받았음.
                 firstLinks.add(temp.findElement(By.className("a-link-normal")).getAttribute("href"));
             }
         }
         logger.info("firstLevelLink 갯수: " + firstLinks.size());
-        driver2.quit();
+        driver.quit();
         return firstLinks;
     }
 
-    public List<String> CrawlSecondLevel() throws InterruptedException {
-        ChromeOptions options = new ChromeOptions();
-        options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
-        driver = new ChromeDriver(options);
+    public List<String> CrawlSecondLevel() {
         List<String> firstLinks = CrawlFirstLevel();
 
         String comp1 = "https://www.amazon.com/dp/";   //dp인것 (kindle 스토어 삭제)
@@ -116,7 +125,7 @@ public class AmazonReader implements ItemReader<Product> {
         return links;
     }
 
-    public Product Crawl(String link) throws InterruptedException {
+    public Product Crawl(String link) {
         Product product = new Product();
         try {
             product.setLink(link);
