@@ -46,9 +46,14 @@ public class AmazonConfiguration {
                 .reader(AmazonItemReader())
                 .processor(compositeItemProcessor())
                 .writer(productMongoItemWriter())
+                .listener(AmazonChunkListener())
                 .build();
     }
 
+    @Bean
+    public AmazonChunkListener AmazonChunkListener(){
+        return new AmazonChunkListener();
+    }
     @Bean
     public ItemReader<Product> AmazonItemReader() {
         return new AmazonReader();
@@ -58,7 +63,7 @@ public class AmazonConfiguration {
     public CompositeItemProcessor compositeItemProcessor() {
         List<ItemProcessor> delagates = new ArrayList<>();
         delagates.add(validateProcessor());
-        //delagates.add(translateProcessor());
+        delagates.add(translateProcessor());
         delagates.add(priceComparisonProcessor());
 
         CompositeItemProcessor processor = new CompositeItemProcessor<>();

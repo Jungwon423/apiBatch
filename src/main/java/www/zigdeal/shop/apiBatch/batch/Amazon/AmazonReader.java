@@ -20,7 +20,7 @@ public class AmazonReader implements ItemReader<Product> {
     //Properties 설정
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
     public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
-    public static String TARGET_URL = "https://www.amazon.com/gp/goldbox?ref_=navm_nav_cs_gb";
+    public static String TARGET_URL = "https://www.amazon.com/-/ko/gp/goldbox?ref_=nav_cs_gb&language=ko_KR&currency=USD";
     public static int CrollingNumber = 70;
     String pageUrlprefix = "https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb&deals-widget=%257B%2522version%2522%253A1%252C%2522viewIndex%2522%253A";
     String pageUrlsuffix = "%252C%2522presetId%2522%253A%2522AE6BA37878475F9AE4C584B7AD5E12BE%2522%252C%2522sorting%2522%253A%2522BY_SCORE%2522%257D#";
@@ -48,8 +48,9 @@ public class AmazonReader implements ItemReader<Product> {
         List<String> firstLinks = new ArrayList<>();
         driver = new ChromeDriver(options);
         driver.get(TARGET_URL);
+
         try {
-            Thread.sleep(1000);
+            Thread.sleep(2000);
             ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
 
             List<WebElement> elements = driver.findElements(By.className("DealGridItem-module__withoutActionButton_2OI8DAanWNRCagYDL2iIqN"));
@@ -102,6 +103,8 @@ public class AmazonReader implements ItemReader<Product> {
 
                 WebElement Unavailable = driver.findElement(By.className("a-spacing-base"));    //상품 다 팔려서 없다고 뜰 때
                 if (Unavailable.getText().contains("unavailable")) continue;
+                if (Unavailable.getText().contains("이 딜은 현재 이용할 수 없지만")) continue;
+
 
                 try {    //링크 여러개 뜰 때 제품 하나 가져오기
                     List<WebElement> ele = driver.findElements(By.className("a-link-normal"));
@@ -123,7 +126,7 @@ public class AmazonReader implements ItemReader<Product> {
         product.setLink(link);
         logger.info(link);
         product.setMarketName("Amazon");
-        product.setLocale("en");
+        product.setLocale("kr");
         product.setCurrency("USD");
         try {
             driver.get(link);
@@ -171,12 +174,11 @@ public class AmazonReader implements ItemReader<Product> {
             product.setDiscountRate(Double.parseDouble(discount)); //할인율
             logger.info(discount);
         }
-        try{
+        try {
             WebElement imgLink = driver.findElement(By.className("a-dynamic-image"));
             product.setImageUrl(imgLink.getAttribute("src")); //이미지 링크
             logger.info("이미지링크 : " + imgLink.getAttribute("src"));
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             product.setImageUrl("null");
             logger.error("이미지 에러");
         }
