@@ -58,7 +58,7 @@ public class AmazonConfiguration {
     public CompositeItemProcessor compositeItemProcessor() {
         List<ItemProcessor> delagates = new ArrayList<>();
         delagates.add(validateProcessor());
-        delagates.add(translateProcessor());
+        //delagates.add(translateProcessor());
         delagates.add(priceComparisonProcessor());
 
         CompositeItemProcessor processor = new CompositeItemProcessor<>();

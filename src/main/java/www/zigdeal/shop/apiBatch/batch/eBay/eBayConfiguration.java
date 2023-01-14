@@ -1,3 +1,4 @@
+/*
 package www.zigdeal.shop.apiBatch.batch.eBay;
 
 import lombok.RequiredArgsConstructor;
@@ -93,3 +94,5 @@ public class eBayConfiguration {
         return new MongoItemWriterBuilder<Product>().template(mongoTemplate).collection("productBatchTest").build();
     }
 }
+
+ */

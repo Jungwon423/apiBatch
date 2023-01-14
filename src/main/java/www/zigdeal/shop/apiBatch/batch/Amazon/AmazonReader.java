@@ -14,7 +14,7 @@ import java.util.List;
 public class AmazonReader implements ItemReader<Product> {
     private final List<String> links;
     private int idx = 0;
-    private final Logger logger = LoggerFactory.getLogger("크롤링 로그");
+    private final Logger logger = LoggerFactory.getLogger("AmazonLogger");
     private WebDriver driver;
 
     //Properties 설정
@@ -56,8 +56,8 @@ public class AmazonReader implements ItemReader<Product> {
             for (WebElement elem : elements) { //elements로 받아서 temps로 addall 하면 오류가 떠서 String 리스트로 받았음.
                 firstLinks.add(elem.findElement(By.className("a-link-normal")).getAttribute("href"));
             }
-            int pageNum = CrollingNumber/60;
-            if (pageNum >=1){
+            int pageNum = CrollingNumber / 60;
+            if (pageNum >= 1) {
                 for (int x = 1; x <= pageNum; x++) {     //x 페이지로 이동  (60개씩 받음) 3페이지면 180개
                     String newLink = pageUrlprefix + x * 60 + pageUrlsuffix;
                     Thread.sleep(500);
@@ -155,8 +155,8 @@ public class AmazonReader implements ItemReader<Product> {
             DiscountList.add(intDis);
         } catch (Exception e) {
             List<WebElement> ele = driver.findElements(By.className("a-color-price"));
-            for (int j = 3; j < 17; j++) {    //적당히 비교
-                String discountRate = ele.get(j).getText();
+            for (WebElement el : ele) {    //없으면 color-price 클래스 다 긁어오기
+                String discountRate = el.getText();
                 if (discountRate.contains("%")) {
                     int a = discountRate.lastIndexOf("%");
                     String dis = discountRate.substring(a - 2, a);
@@ -171,10 +171,15 @@ public class AmazonReader implements ItemReader<Product> {
             product.setDiscountRate(Double.parseDouble(discount)); //할인율
             logger.info(discount);
         }
-
-        WebElement imgLink = driver.findElement(By.className("a-dynamic-image"));
-        product.setImageUrl(imgLink.getAttribute("src")); //이미지 링크
-        logger.info("이미지링크 : " + imgLink.getAttribute("src"));
+        try{
+            WebElement imgLink = driver.findElement(By.className("a-dynamic-image"));
+            product.setImageUrl(imgLink.getAttribute("src")); //이미지 링크
+            logger.info("이미지링크 : " + imgLink.getAttribute("src"));
+        }
+        catch(Exception e){
+            product.setImageUrl("null");
+            logger.error("이미지 에러");
+        }
 
         try {    //카테고리 없는 사이트 예시 "https://www.amazon.com/Beats-Fit-Pro-Kim-Kardashian/dp/B0B6LW47C8?ref_=Oct_DLandingS_D_f56073f1_61&th=1"
             WebElement category = driver.findElement(By.id("wayfinding-breadcrumbs_feature_div"));
@@ -182,7 +187,7 @@ public class AmazonReader implements ItemReader<Product> {
             product.setCategoryName(category2.getText()); //카테고리
             logger.info("카테고리 : " + category2.getText());
         } catch (Exception e) {
-            product.setCategoryName(null);
+            product.setCategoryName("null");
         }
         logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
         logger.info(product.toString());
