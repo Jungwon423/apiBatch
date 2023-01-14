@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="LOGS_ABSOLUTE_PATH" value="./logs"/>
+    <property name="LOGS_PATH" value="./logs"/>
+    <property name="PAST_LOGS_PATH" value="./was-logs"/>
+    <!-- <property name="LOGS_PATH" value="/home/ubuntu/logs" />
+    <property name="PAST_LOGS_PATH" value="/home/ubuntu/was-logs"/> -->
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -9,12 +12,12 @@
     </appender>
 
     <appender name="INFO_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>./logs/info.log</file>
+        <file>${LOGS_PATH}/info.log</file>
         <encoder>
             <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %-5level %logger{35} - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>./was-logs/info.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${PAST_LOGS_PATH}/info.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -23,7 +26,7 @@
     </appender>
 
     <appender name="ERROR_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>./logs/error.log</file>
+        <file>${LOGS_PATH}/error.log</file>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>ERROR</level>
             <onMatch>ACCEPT</onMatch>
@@ -33,7 +36,7 @@
             <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %-5level %logger{35} - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>./was-logs/ERROR.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${PAST_LOGS_PATH}/ERROR.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -44,15 +47,15 @@
     <include resource="ali-appender.xml"/>
     <include resource="ebay-appender.xml"/>
 
-    <logger name="AmazonLogger" level="info" additivity="false">
+    <logger name="AmazonLogger" level="debug" additivity="false">
         <appender-ref ref="AmazonReader" />
         <appender-ref ref="STDOUT" />
     </logger>
-    <logger name="AliLogger" level="info" additivity="false">
+    <logger name="AliLogger" level="debug" additivity="false">
         <appender-ref ref="AliReader" />
         <appender-ref ref="STDOUT" />
     </logger>
-    <logger name="eBayLogger" level="info" additivity="false">
+    <logger name="eBayLogger" level="debug" additivity="false">
         <appender-ref ref="eBayReader" />
         <appender-ref ref="STDOUT" />
     </logger>

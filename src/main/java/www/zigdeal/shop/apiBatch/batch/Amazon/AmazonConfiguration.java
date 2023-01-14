@@ -1,6 +1,8 @@
 package www.zigdeal.shop.apiBatch.batch.Amazon;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -24,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Configuration
 public class AmazonConfiguration {
+    public static final Logger logger = LoggerFactory.getLogger("AmazonLogger");
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final TranslateService translateService;
@@ -35,12 +38,14 @@ public class AmazonConfiguration {
     @Bean
     public Job AmazonJob() {
         return jobBuilderFactory.get("AmazonJob")
+                .listener(AmazonJobListener())
                 .start(AmazonStep())
                 .build();
     }
 
     @Bean
     public Step AmazonStep(){
+        logger.info("Amazon Step 시작");
         return stepBuilderFactory.get("AmazonStep")
                 .<Product, Product>chunk(10)
                 .reader(AmazonItemReader())
@@ -49,7 +54,10 @@ public class AmazonConfiguration {
                 .listener(AmazonChunkListener())
                 .build();
     }
-
+    @Bean
+    public AmazonJobListener AmazonJobListener(){
+        return new AmazonJobListener();
+    }
     @Bean
     public AmazonChunkListener AmazonChunkListener(){
         return new AmazonChunkListener();
