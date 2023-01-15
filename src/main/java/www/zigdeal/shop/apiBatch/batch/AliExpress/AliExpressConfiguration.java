@@ -1,4 +1,6 @@
+/*
 package www.zigdeal.shop.apiBatch.batch.AliExpress;
+
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -93,3 +95,4 @@ public class AliExpressConfiguration {
         return new MongoItemWriterBuilder<Product>().template(mongoTemplate).collection("productBatchTest").build();
     }
 }
+ */

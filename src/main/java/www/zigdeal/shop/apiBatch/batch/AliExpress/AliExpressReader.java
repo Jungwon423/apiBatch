@@ -19,7 +19,7 @@ public class AliExpressReader implements ItemReader<Product> {
 
     private final List<String> links;
     private int idx = 0;
-    private final Logger logger = LoggerFactory.getLogger("크롤링 로그");
+    private final Logger logger = LoggerFactory.getLogger("AliLogger");
     private WebDriver driver;
 
     //Properties 설정

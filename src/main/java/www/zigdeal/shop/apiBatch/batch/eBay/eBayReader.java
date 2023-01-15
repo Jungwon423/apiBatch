@@ -19,7 +19,7 @@ public class eBayReader implements ItemReader<Product> {
     private final List<String> categoryLinks; // 카테고리 페이지로 가는 링크
     private final List<String> links = new ArrayList<>(); // 특정 카테고리의 링크들
     private final List<Double> priceList =new ArrayList<>(); // links와 대응되는 인덱스를 가지며 links의 제품의 가격
-    private final Logger logger = LoggerFactory.getLogger("크롤링 로그");
+    private final Logger logger = LoggerFactory.getLogger("eBayLogger");
     private WebDriver driver;
 
     //Properties 설정

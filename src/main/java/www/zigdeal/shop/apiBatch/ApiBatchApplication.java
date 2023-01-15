@@ -10,9 +10,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 @SpringBootApplication
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 public class ApiBatchApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(ApiBatchApplication.class, args);
 	}
-
 }
