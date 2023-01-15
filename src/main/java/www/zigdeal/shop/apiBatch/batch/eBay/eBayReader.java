@@ -57,6 +57,8 @@ public class eBayReader implements ItemReader<Product> {
             getLinks();
         }
         Product ret = getProductDetails();
+//        logger.info("현재 category idx : " + String.valueOf(category_idx));
+//        logger.info("현재 link idx : " + String.valueOf(link_idx));
         updateIdx();
         return ret;
     }
@@ -75,28 +77,32 @@ public class eBayReader implements ItemReader<Product> {
             this.links.clear();
             this.priceList.clear();
             ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
-            Thread.sleep(2000);
+            Thread.sleep(3000);
 
             List<WebElement> elements;
             elements = driver.findElements(By.cssSelector("div[class='dne-itemtile dne-itemtile-large']")); //제품 링크들 모으는 과정
-            for (WebElement elment : elements) this.links.add(elment.findElement(By.tagName("a")).getAttribute("href"));
-
-            elements = driver.findElements(By.className("first")); // 제품들 USD 가격 수집
-            for (WebElement element : elements) {
-                String a = element.getText();
-                String discount = "";
-                boolean num = false;
-                for (int j = 0; j < a.length(); j++) {
-                    if (!num) {
-                        if (a.charAt(j) == '$') num = true;
-                        continue;
+            for (WebElement element: elements){
+                try {
+                    String a = element.findElement(By.className("first")).getText();
+                    String discount = "";
+                    boolean num = false;
+                    for (int j = 0; j < a.length(); j++) {
+                        if (!num) {
+                            if (a.charAt(j) == '$') num = true;
+                            continue;
+                        }
+                        if (a.charAt(j)!=',') discount += a.charAt(j);
                     }
-                    discount += a.charAt(j);
+                    this.priceList.add(Double.parseDouble(discount));
+                    this.links.add(element.findElement(By.tagName("a")).getAttribute("href"));
                 }
-                this.priceList.add(Double.parseDouble(discount));
+                catch(Exception e){}
             }
         }
         catch(Exception e){}
+//        logger.info("카테고리가 변경되었습니다!!");
+//        logger.info("price list의 길이 : " + String.valueOf(priceList.size()));
+//        logger.info("links의 길이 : " + String.valueOf(links.size()));
     }
 
 
@@ -157,8 +163,14 @@ public class eBayReader implements ItemReader<Product> {
         product.setMarketName("eBay");
         product.setLink(link);
         product.setLocale("kr");
-        logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
-        logger.info(product.toString());
+//        logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
+//        logger.info("이름 : " + name);
+//        logger.info("가격 : " + priceList.get(link_idx).toString());
+//        logger.info("할인율 : " + String.valueOf(discountRate));
+//        logger.info("이미지 : " + imgUrl);
+//        logger.info("link : " + link);
+//        logger.info("카테고리 : " + categories.get(category_idx));
+//        logger.info(product.toString());
         return product;
     }
 
