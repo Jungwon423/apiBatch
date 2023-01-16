@@ -61,10 +61,11 @@ public class AliExpressReader implements ItemReader<Product> {
         try {
             driver.get(TARGET_URL);
             var crawlingTime = new Date().getTime();
-            while (new Date().getTime() < crawlingTime + 60000) { // 60000 = 60000 millisecond = 60 sec = 1 min
-                logger.info("while문 루프 도는 중");
-                ((JavascriptExecutor)driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
-            }
+
+//            logger.info("while문 루프 도는 중");
+//            while (new Date().getTime() < crawlingTime + 60000) { // 60000 = 60000 millisecond = 60 sec = 1 min
+//                ((JavascriptExecutor)driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
+//            }
             Thread.sleep(10000);
             List<WebElement> elements = driver.findElements(By.tagName("a"));
             logger.info("현재 읽어온 a 태그 수 : "+ elements.size());

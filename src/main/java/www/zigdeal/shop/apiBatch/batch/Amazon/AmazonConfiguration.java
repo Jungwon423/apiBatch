@@ -23,8 +23,8 @@ import www.zigdeal.shop.apiBatch.service.TranslateService;
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor
 @Configuration
+@RequiredArgsConstructor
 public class AmazonConfiguration {
     public static final Logger logger = LoggerFactory.getLogger("AmazonLogger");
     private final JobBuilderFactory jobBuilderFactory;

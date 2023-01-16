@@ -1,4 +1,3 @@
-/*
 package www.zigdeal.shop.apiBatch.batch.eBay;
 
 import lombok.RequiredArgsConstructor;
@@ -25,8 +24,8 @@ import www.zigdeal.shop.apiBatch.service.TranslateService;
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor
 @Configuration
+@RequiredArgsConstructor
 public class eBayConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -58,7 +57,6 @@ public class eBayConfiguration {
         return new eBayReader();
     }
 
-    @Bean
     public CompositeItemProcessor compositeItemProcessor() {
         List<ItemProcessor> delagates = new ArrayList<>();
         delagates.add(validateProcessor());
@@ -72,27 +70,21 @@ public class eBayConfiguration {
         return processor;
     }
 
-    @Bean
     public ItemProcessor<Product, Product> validateProcessor() {
         return product -> {
             if (product.getPrice() < 0) return null;
             else return product;
         };
     }
-    @Bean
     public ItemProcessor<Product, Product> translateProcessor() {
         return translateService::translateProduct;
     }
 
-    @Bean
     public ItemProcessor<Product, Product> priceComparisonProcessor() {
         return priceComparisonService::comparePrice;
     }
 
-    @Bean
     public MongoItemWriter<Product> productMongoItemWriter() {
         return new MongoItemWriterBuilder<Product>().template(mongoTemplate).collection("productBatchTest").build();
     }
 }
-
- */
