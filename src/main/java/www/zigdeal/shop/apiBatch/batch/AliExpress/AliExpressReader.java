@@ -98,19 +98,22 @@ public class AliExpressReader implements ItemReader<Product> {
             WebElement productName = driver.findElement(By.className("product-title-text"));
             product.setName(productName.getText());
 
-            int discountRate;
+            int discountRate = -1 ;
             String price = "NOPE";
-
+            logger.info("링크 : " + link);
             try{ // 판매가
                 WebElement element = driver.findElement(By.className("uniform-banner-box-price"));
                 logger.info("가격 Case 1: " + ToPrice(element.getText()));
                 price = ToPrice(element.getText());
             }
             catch(Exception e){
-                WebElement element = driver.findElement(By.className("product-price-current"));
-                element = element.findElement(By.tagName("span"));
-                logger.info("가격 Case 2: " + ToPrice(element.getText()));
-                price = ToPrice(element.getText());
+                try {
+                    WebElement element = driver.findElement(By.className("product-price-current"));
+                    element = element.findElement(By.tagName("span"));
+                    logger.info("가격 Case 2: " + ToPrice(element.getText()));
+                    price = ToPrice(element.getText());
+                }
+                catch(Exception f){}
             }
             try { // discountRate 크롤링
                 WebElement element = driver.findElement(By.className("uniform-banner-box-discounts"));
@@ -119,10 +122,13 @@ public class AliExpressReader implements ItemReader<Product> {
                 logger.info("할인율 : " + discountRate);
             }
             catch(Exception e){
-                WebElement element = driver.findElement(By.className("product-price-original"));
-                List <WebElement> elements = element.findElements(By.tagName("span"));
-                discountRate = Integer.parseInt(elements.get(1).getText().replaceAll("[^0-9]", ""));
-                logger.info("할인율 : " + discountRate);
+                try {
+                    WebElement element = driver.findElement(By.className("product-price-original"));
+                    List<WebElement> elements = element.findElements(By.tagName("span"));
+                    discountRate = Integer.parseInt(elements.get(1).getText().replaceAll("[^0-9]", ""));
+                    logger.info("할인율 : " + discountRate);
+                }
+                catch(Exception f){}
             }
 
             try{ // imageUrl 크롤링
@@ -132,10 +138,13 @@ public class AliExpressReader implements ItemReader<Product> {
                 product.setImageUrl(element.getAttribute("src"));
             }
             catch(Exception e){
-                WebElement element = driver.findElement(By.className("image-view-magnifier-wrap"));
-                element = element.findElement(By.tagName("img"));
-                logger.info("Case 2 : 사진 링크 : " + element.getAttribute("src"));
-                product.setImageUrl(element.getAttribute("src"));
+                try {
+                    WebElement element = driver.findElement(By.className("image-view-magnifier-wrap"));
+                    element = element.findElement(By.tagName("img"));
+                    logger.info("Case 2 : 사진 링크 : " + element.getAttribute("src"));
+                    product.setImageUrl(element.getAttribute("src"));
+                }
+                catch(Exception f){}
             }
 
             // categoryName 크롤링
@@ -158,9 +167,6 @@ public class AliExpressReader implements ItemReader<Product> {
             if (price.equals("NOPE")) price = "-1";
             product.setPrice(Double.valueOf(price));
             product.setDiscountRate((double) discountRate);
-            logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
-            logger.info(product.toString());
-            logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
 
         }
         catch(Exception e){

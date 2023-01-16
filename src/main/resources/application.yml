@@ -7,6 +7,9 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+
+#지정한 Batch Job만 실행되도록 한다.
+
 #      배포할 경우에만
 #      username: taptorestart
 #      password: thisispass

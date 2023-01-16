@@ -1,4 +1,4 @@
-/*
+
 package www.zigdeal.shop.apiBatch.batch.eBay;
 
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class eBayConfiguration {
     @Bean
     public Step eBayStep(){
         return stepBuilderFactory.get("eBayStep")
-                .<Product, Product>chunk(10)
+                .<Product, Product>chunk(1)
                 .reader(eBayItemReader())
                 .processor(compositeItemProcessor())
                 .writer(productMongoItemWriter())
@@ -95,4 +95,3 @@ public class eBayConfiguration {
     }
 }
 
- */

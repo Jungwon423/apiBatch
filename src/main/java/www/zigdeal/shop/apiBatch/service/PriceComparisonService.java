@@ -33,15 +33,17 @@ public class PriceComparisonService {
         List<?> objectList = responseStrToList(responseBody);
 
         Double naverPrice = 0.0;
+        String category ="";
         if (objectList.isEmpty()){
             naverPrice = 0.0;
         }
         for (Object li : objectList) {
             naverPrice = ObjectToDouble(li);
+            category = getCategory(li);
         }
 
         if (productPrice > naverPrice) return null;
-
+        product.setCategoryName(category);
         product.setNaverPrice(naverPrice);
 
         return product;
@@ -139,4 +141,9 @@ public class PriceComparisonService {
         return Double.parseDouble((String) objLi);
     }
 
+    private String getCategory(Object rawObj){
+        JSONObject JsonLi = (JSONObject) rawObj;
+        Object objLi = JsonLi.get("category1");
+        return (String)objLi;
+    }
 }

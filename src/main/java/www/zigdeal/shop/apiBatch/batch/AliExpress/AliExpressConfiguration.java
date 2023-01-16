@@ -1,4 +1,4 @@
-/*
+
 package www.zigdeal.shop.apiBatch.batch.AliExpress;
 
 
@@ -95,4 +95,3 @@ public class AliExpressConfiguration {
         return new MongoItemWriterBuilder<Product>().template(mongoTemplate).collection("productBatchTest").build();
     }
 }
- */
