@@ -25,7 +25,7 @@ public class ExchangeRateConfiguration {
 
     @Bean
     public Job exchangeRateJob() {
-        return jobBuilderFactory.get("exchangeRateJob")
+        return jobBuilderFactory.get("ExchangeRateJob")
                 .start(exchangeRateStep())
                 .build();
     }
@@ -33,7 +33,7 @@ public class ExchangeRateConfiguration {
 
     @Bean
     public Step exchangeRateStep() {
-        return stepBuilderFactory.get("exchangeRateStep")
+        return stepBuilderFactory.get("ExchangeRateStep")
                 .<ExchangeRate, ExchangeRate>chunk(20)
                 .reader(exchangeRateItemReader())
                 .writer(exchangeRateMongoItemWriter())

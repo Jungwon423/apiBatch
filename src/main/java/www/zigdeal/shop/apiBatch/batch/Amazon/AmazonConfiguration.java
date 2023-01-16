@@ -45,7 +45,6 @@ public class AmazonConfiguration {
 
     @Bean
     public Step AmazonStep(){
-        logger.info("Amazon Step 시작");
         return stepBuilderFactory.get("AmazonStep")
                 .<Product, Product>chunk(10)
                 .reader(AmazonItemReader())

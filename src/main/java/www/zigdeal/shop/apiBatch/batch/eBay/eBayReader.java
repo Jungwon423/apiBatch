@@ -21,8 +21,8 @@ public class eBayReader implements ItemReader<Product> {
 
     //Properties 설정
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
-//    public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
-    public static String WEB_DRIVER_PATH = "/home/ubuntu/Downloads/chromedriver";
+    public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
+//    public static String WEB_DRIVER_PATH = "/home/ubuntu/Downloads/chromedriver";
     public static String TARGET_URL = "https://www.ebay.com/globaldeals";
     public int category_idx = 0;
     public int link_idx = 0;

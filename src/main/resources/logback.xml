@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-<!--    <property name="LOGS_PATH" value="./logs"/>-->
-<!--    <property name="PAST_LOGS_PATH" value="./was-logs"/>-->
-    <property name="LOGS_PATH" value="/home/ubuntu/logs" />
-    <property name="PAST_LOGS_PATH" value="/home/ubuntu/was-logs"/>
+    <property name="LOGS_PATH" value="./logs"/>
+    <property name="PAST_LOGS_PATH" value="./was-logs"/>
+<!--    <property name="LOGS_PATH" value="/home/ubuntu/logs" />-->
+<!--    <property name="PAST_LOGS_PATH" value="/home/ubuntu/was-logs"/>-->
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
