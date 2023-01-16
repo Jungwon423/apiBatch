@@ -17,10 +17,11 @@ import java.util.List;
 
 public class AliExpressReader implements ItemReader<Product> {
 
-    private final List<String> links;
+    private List<String> links;
     private int idx = 0;
     private final Logger logger = LoggerFactory.getLogger("AliLogger");
     private WebDriver driver;
+    private boolean created = false; //생성자
 
     //Properties 설정
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
@@ -28,13 +29,17 @@ public class AliExpressReader implements ItemReader<Product> {
     public static String TARGET_URL = "https://ko.aliexpress.com/campaign/wow/gcp/ae/channel/ae/accelerate/tupr?spm=a2g0o.home.countrygrid.1.472b4430H8ED7a&wh_weex=true&_immersiveMode=true&wx_navbar_hidden=true&wx_navbar_transparent=true&ignoreNavigationBar=true&wx_statusbar_hidden=true&wh_pid=ae%2Fchannel%2Fae%2Fkr_plaza%2FKRfastshipping&productIds=%252C%252C%252C%252C%252C%252C%252C%252C%252C%252C";
 
 
-    public AliExpressReader() { // 생성자로 links 초기화
+    public void create() { // 생성자로 links 초기화
         this.links = getProductLinks();
         logger.info("생성자 초기화 성공! links 길이" + links.size());
     }
 
     @Override
     public Product read() {
+        if (!created){
+            created=true;
+            create();
+        }
         if (idx < links.size()) {
             return getProductDetails(links.get(idx++));
         }
@@ -52,7 +57,7 @@ public class AliExpressReader implements ItemReader<Product> {
         options.addArguments("--disable-popup-blocking");       //팝업안띄움
         options.addArguments("headless");                       //브라우저 안띄움
         options.addArguments("__lang:euc-kr");
-        driver = new ChromeDriver(options);
+        this.driver = new ChromeDriver(options);
         String baseURL = "https://ko.aliexpress.com/item/";
         int len = baseURL.length();
 

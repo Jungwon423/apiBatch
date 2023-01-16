@@ -57,6 +57,7 @@ public class PriceComparisonService {
         else {
             Double USD = 0.0;
             if (exchangeRepository.findById("USD").isPresent()) USD = exchangeRepository.findById("USD").get().getExchangeRate();
+            product.setCurrency("KRW");
             product.setPrice(productPrice*USD);
             return product;
         }

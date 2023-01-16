@@ -12,10 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AmazonReader implements ItemReader<Product> {
-    private final List<String> links;
+    private List<String> links;
     private int idx = 0;
     private final Logger logger = LoggerFactory.getLogger("AmazonLogger");
     private WebDriver driver;
+    private  boolean created = false;
 
     //Properties 설정
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
@@ -25,13 +26,17 @@ public class AmazonReader implements ItemReader<Product> {
     String pageUrlprefix = "https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb&deals-widget=%257B%2522version%2522%253A1%252C%2522viewIndex%2522%253A";
     String pageUrlsuffix = "%252C%2522presetId%2522%253A%2522AE6BA37878475F9AE4C584B7AD5E12BE%2522%252C%2522sorting%2522%253A%2522BY_SCORE%2522%257D#";
 
-    public AmazonReader() { // 생성자로 links 초기화
+    public void create() { // 생성자로 links 초기화
         this.links = CrawlSecondLevel();
         logger.info("생성자 초기화 성공! links 길이" + links.size());
     }
 
     @Override
     public Product read() {
+        if (!created){
+            created=true;
+            create();
+        }
         if (idx < links.size()) {
             return Crawl(links.get(idx++));
         } else {

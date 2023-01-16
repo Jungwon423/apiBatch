@@ -15,8 +15,8 @@ import java.util.*;
 
 public class eBayReader implements ItemReader<Product> {
 
-    private final List<String> categories; //카테고리 이름
-    private final List<String> categoryLinks; // 카테고리 페이지로 가는 링크
+    private List<String> categories; //카테고리 이름
+    private List<String> categoryLinks; // 카테고리 페이지로 가는 링크
     private final List<String> links = new ArrayList<>(); // 특정 카테고리의 링크들
     private final List<Double> priceList =new ArrayList<>(); // links와 대응되는 인덱스를 가지며 links의 제품의 가격
     private final Logger logger = LoggerFactory.getLogger("eBayLogger");
@@ -28,9 +28,10 @@ public class eBayReader implements ItemReader<Product> {
     public static String TARGET_URL = "https://www.ebay.com/globaldeals";
     public int category_idx = 0;
     public int link_idx = 0;
+    public boolean created = false;
 
 
-    public eBayReader() { // 생성자로 links 초기화
+    public void create() { // 생성자로 links 초기화
 
         System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
         ChromeOptions options = new ChromeOptions();
@@ -48,6 +49,10 @@ public class eBayReader implements ItemReader<Product> {
 
     @Override
     public Product read() {
+        if (!created){
+            created=true;
+            create();
+        }
         if (category_idx==categoryLinks.size()) {
             driver.close();
             driver.quit();
