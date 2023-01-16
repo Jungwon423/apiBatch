@@ -1,3 +1,4 @@
+/*
 package www.zigdeal.shop.apiBatch.batch.AliExpress;
 
 
@@ -25,8 +26,8 @@ import www.zigdeal.shop.apiBatch.service.TranslateService;
 import java.util.ArrayList;
 import java.util.List;
 
-@Configuration
 @RequiredArgsConstructor
+@Configuration
 public class AliExpressConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -45,7 +46,7 @@ public class AliExpressConfiguration {
 
     @Bean
     public Step AliExpressStep(){
-        return stepBuilderFactory.get("AliExpressStep")
+        return stepBuilderFactory.get("CollectProductStep")
                 .<Product, Product>chunk(10)
                 .reader(AliExpressItemReader())
                 .processor(compositeItemProcessor())
@@ -58,6 +59,7 @@ public class AliExpressConfiguration {
         return new AliExpressReader();
     }
 
+    @Bean
     public CompositeItemProcessor compositeItemProcessor() {
         List<ItemProcessor> delagates = new ArrayList<>();
         delagates.add(validateProcessor());
@@ -71,23 +73,26 @@ public class AliExpressConfiguration {
         return processor;
     }
 
+    @Bean
     public ItemProcessor<Product, Product> validateProcessor() {
         return product -> {
             if (product.getPrice() < 0) return null;
             else return product;
         };
     }
-
+    @Bean
     public ItemProcessor<Product, Product> translateProcessor() {
         return translateService::translateProduct;
     }
 
-
+    @Bean
     public ItemProcessor<Product, Product> priceComparisonProcessor() {
         return priceComparisonService::comparePrice;
     }
 
+    @Bean
     public MongoItemWriter<Product> productMongoItemWriter() {
         return new MongoItemWriterBuilder<Product>().template(mongoTemplate).collection("productBatchTest").build();
     }
 }
+ */

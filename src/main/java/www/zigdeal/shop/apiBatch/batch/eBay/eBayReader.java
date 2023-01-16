@@ -130,6 +130,7 @@ public class eBayReader implements ItemReader<Product> {
         String link = links.get(link_idx);
         driver.get(link);
         double discountRate = 0;
+        double price = priceList.get(link_idx);
         String name = "";
         String imgUrl = "";
         WebElement element;
@@ -138,6 +139,7 @@ public class eBayReader implements ItemReader<Product> {
             name = element.findElement(By.tagName("span")).getText();
         }
         catch(Exception e){
+            price=-1;
         }
 
         try { // imgUrl
@@ -145,6 +147,7 @@ public class eBayReader implements ItemReader<Product> {
             imgUrl = element.findElement(By.tagName("img")).getAttribute("src");
         }
         catch(Exception e){
+            price=-1;
         }
 
         try {// discountRate
@@ -152,10 +155,11 @@ public class eBayReader implements ItemReader<Product> {
             discountRate=Double.parseDouble(toDiscountRate(element.getText()));
         }
         catch(Exception e){
+            price=-1;
         }
 
         product.setName(name);
-        product.setPrice(priceList.get(link_idx));
+        product.setPrice(price);
         product.setCurrency("USD");
         product.setDiscountRate(discountRate);
         product.setImageUrl(imgUrl);
@@ -163,14 +167,13 @@ public class eBayReader implements ItemReader<Product> {
         product.setMarketName("eBay");
         product.setLink(link);
         product.setLocale("kr");
-//        logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
-//        logger.info("이름 : " + name);
-//        logger.info("가격 : " + priceList.get(link_idx).toString());
-//        logger.info("할인율 : " + String.valueOf(discountRate));
-//        logger.info("이미지 : " + imgUrl);
-//        logger.info("link : " + link);
-//        logger.info("카테고리 : " + categories.get(category_idx));
-//        logger.info(product.toString());
+        logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
+        logger.info("이름 : " + name);
+        logger.info("가격 : " + priceList.get(link_idx).toString());
+        logger.info("할인율 : " + String.valueOf(discountRate));
+        logger.info("이미지 : " + imgUrl);
+        logger.info("link : " + link);
+        logger.info("카테고리 : " + categories.get(category_idx));
         return product;
     }
 
