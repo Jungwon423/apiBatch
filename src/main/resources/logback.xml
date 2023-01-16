@@ -46,6 +46,7 @@
     <include resource="amazon-appender.xml"/>
     <include resource="ali-appender.xml"/>
     <include resource="ebay-appender.xml"/>
+    <include resource="exchangerate-appender.xml"/>
 
     <logger name="AmazonLogger" level="debug" additivity="false">
         <appender-ref ref="AmazonReader" />
@@ -59,7 +60,10 @@
         <appender-ref ref="eBayReader" />
         <appender-ref ref="STDOUT" />
     </logger>
-
+    <logger name="ExchangeRateLogger" level="debug" additivity="false">
+        <appender-ref ref="ExchangeRateReader" />
+        <appender-ref ref="STDOUT" />
+    </logger>
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="INFO_LOG" />

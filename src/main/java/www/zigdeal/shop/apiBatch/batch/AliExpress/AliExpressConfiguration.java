@@ -2,6 +2,8 @@ package www.zigdeal.shop.apiBatch.batch.AliExpress;
 
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -28,6 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Configuration
 public class AliExpressConfiguration {
+    public static final Logger logger = LoggerFactory.getLogger("AliExpressLogger");
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final TranslateService translateService;
@@ -39,6 +42,7 @@ public class AliExpressConfiguration {
     @Bean
     public Job AliExpressJob() {
         return jobBuilderFactory.get("AliExpressJob")
+                .listener(new AliExpressListener())
                 .start(AliExpressStep())
                 .build();
     }
