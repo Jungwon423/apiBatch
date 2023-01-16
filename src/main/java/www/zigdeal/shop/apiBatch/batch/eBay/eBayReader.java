@@ -14,7 +14,7 @@ import www.zigdeal.shop.apiBatch.batch.Product;
 import java.util.*;
 
 public class eBayReader implements ItemReader<Product> {
-
+    private int count=0;
     private List<String> categories; //카테고리 이름
     private List<String> categoryLinks; // 카테고리 페이지로 가는 링크
     private final List<String> links = new ArrayList<>(); // 특정 카테고리의 링크들
@@ -44,7 +44,7 @@ public class eBayReader implements ItemReader<Product> {
         this.categories = getCategories();
         this.categoryLinks = getCategoryLinks();
 
-        logger.info("생성자 초기화 성공! categoryLinks 길이" + categoryLinks.size());
+        logger.info("eBay 생성자 초기화 성공! 카테고리 종류 수 : " + categoryLinks.size());
     }
 
     @Override
@@ -58,6 +58,7 @@ public class eBayReader implements ItemReader<Product> {
             driver.quit();
             return null;
         }
+        if (++count%20==0) logger.info("현재는 " + count +"번째 작동 중입니다! ");
         if (link_idx==0){
             getLinks();
         }
@@ -105,9 +106,9 @@ public class eBayReader implements ItemReader<Product> {
             }
         }
         catch(Exception e){}
-//        logger.info("카테고리가 변경되었습니다!!");
-//        logger.info("price list의 길이 : " + String.valueOf(priceList.size()));
-//        logger.info("links의 길이 : " + String.valueOf(links.size()));
+        logger.info(category_idx + "번 카테고리로 변경되었습니다!!");
+        logger.info("price list의 길이 : " + String.valueOf(priceList.size()));
+        logger.info("links의 길이 : " + String.valueOf(links.size()));
     }
 
 
@@ -172,13 +173,13 @@ public class eBayReader implements ItemReader<Product> {
         product.setMarketName("eBay");
         product.setLink(link);
         product.setLocale("kr");
-        logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
-        logger.info("이름 : " + name);
-        logger.info("가격 : " + priceList.get(link_idx).toString());
-        logger.info("할인율 : " + String.valueOf(discountRate));
-        logger.info("이미지 : " + imgUrl);
-        logger.info("link : " + link);
-        logger.info("카테고리 : " + categories.get(category_idx));
+//        logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
+//        logger.info("이름 : " + name);
+//        logger.info("가격 : " + priceList.get(link_idx).toString());
+//        logger.info("할인율 : " + String.valueOf(discountRate));
+//        logger.info("이미지 : " + imgUrl);
+//        logger.info("link : " + link);
+//        logger.info("카테고리 : " + categories.get(category_idx));
         return product;
     }
 

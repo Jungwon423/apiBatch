@@ -4,7 +4,8 @@ import  lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.ItemReader;
 import org.json.simple.*;
 import org.json.simple.parser.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +19,7 @@ import java.util.*;
 public class ExchangeRateReader implements ItemReader<ExchangeRate> {
 
     private int cnt = 0;
+    private final Logger logger = LoggerFactory.getLogger("ExchangeRateLogger");
 
     @Override
     public ExchangeRate read() throws ParseException {
@@ -33,12 +35,10 @@ public class ExchangeRateReader implements ItemReader<ExchangeRate> {
                 } else {
                     exchangeRate.setExchangeRate(Double.valueOf(((String) jsonObject.get("deal_bas_r")).replaceAll(",", "")));
                     exchangeRate.setName("USD");
+                    logger.info("ExchangeRate[USD]가 설정되었습니다!");
+                    logger.info("USD : " + Double.valueOf(((String) jsonObject.get("deal_bas_r")).replaceAll(",", "")));
                 }
             }
-
-            System.out.println("Itemreader running");
-            System.out.println(exchangeRate);
-            System.out.println(cnt);
         }
         return cnt <= 1 ? exchangeRate : null;
     }
