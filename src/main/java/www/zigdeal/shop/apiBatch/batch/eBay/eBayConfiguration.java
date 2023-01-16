@@ -1,4 +1,3 @@
-
 package www.zigdeal.shop.apiBatch.batch.eBay;
 
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import www.zigdeal.shop.apiBatch.batch.Amazon.AmazonJobListener;
 import www.zigdeal.shop.apiBatch.batch.Product;
 import www.zigdeal.shop.apiBatch.service.PriceComparisonService;
 import www.zigdeal.shop.apiBatch.service.TranslateService;

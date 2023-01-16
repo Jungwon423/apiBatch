@@ -20,8 +20,8 @@ public class AmazonReader implements ItemReader<Product> {
 
     //Properties 설정
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
-    public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
-//    public static String WEB_DRIVER_PATH = "/home/ubuntu/Downloads/chromedriver";
+//    public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
+    public static String WEB_DRIVER_PATH = "/home/ubuntu/Downloads/chromedriver";
     public static String TARGET_URL = "https://www.amazon.com/-/ko/gp/goldbox?ref_=nav_cs_gb&language=ko_KR&currency=USD";
     public static int CrollingNumber = 20;
     String pageUrlprefix = "https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb&deals-widget=%257B%2522version%2522%253A1%252C%2522viewIndex%2522%253A";
@@ -50,7 +50,7 @@ public class AmazonReader implements ItemReader<Product> {
     public List<String> CrawlFirstLevel() {
         System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
         ChromeOptions options = new ChromeOptions();
-        options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
+        options.setPageLoadStrategy(PageLoadStrategy.EAGER);
         options.setCapability("ignoreProtectedModeSettings", true);
         options.addArguments("--disable-popup-blocking");       //팝업안띄움
         options.addArguments("headless");                       //브라우저 안띄움

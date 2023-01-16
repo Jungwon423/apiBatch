@@ -1,9 +1,6 @@
 package www.zigdeal.shop.apiBatch.batch.AliExpress;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
@@ -26,8 +23,8 @@ public class AliExpressReader implements ItemReader<Product> {
 
     //Properties 설정
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
-    public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
-//    public static String WEB_DRIVER_PATH = "/home/ubuntu/Downloads/chromedriver";
+//    public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
+    public static String WEB_DRIVER_PATH = "/home/ubuntu/Downloads/chromedriver";
     public static String TARGET_URL = "https://ko.aliexpress.com/campaign/wow/gcp/ae/channel/ae/accelerate/tupr?spm=a2g0o.home.countrygrid.1.472b4430H8ED7a&wh_weex=true&_immersiveMode=true&wx_navbar_hidden=true&wx_navbar_transparent=true&ignoreNavigationBar=true&wx_statusbar_hidden=true&wh_pid=ae%2Fchannel%2Fae%2Fkr_plaza%2FKRfastshipping&productIds=%252C%252C%252C%252C%252C%252C%252C%252C%252C%252C";
 
 
@@ -56,6 +53,7 @@ public class AliExpressReader implements ItemReader<Product> {
     public List<String> getProductLinks() {
         System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
         ChromeOptions options = new ChromeOptions();
+        options.setPageLoadStrategy(PageLoadStrategy.EAGER);
         options.setCapability("ignoreProtectedModeSettings", true);
         options.addArguments("--disable-popup-blocking");       //팝업안띄움
         options.addArguments("headless");                       //브라우저 안띄움

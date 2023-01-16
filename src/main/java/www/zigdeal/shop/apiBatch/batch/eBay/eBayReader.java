@@ -1,9 +1,6 @@
 package www.zigdeal.shop.apiBatch.batch.eBay;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
@@ -24,8 +21,8 @@ public class eBayReader implements ItemReader<Product> {
 
     //Properties 설정
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
-    public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
-//    public static String WEB_DRIVER_PATH = "/home/ubuntu/Downloads/chromedriver";
+//    public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
+    public static String WEB_DRIVER_PATH = "/home/ubuntu/Downloads/chromedriver";
     public static String TARGET_URL = "https://www.ebay.com/globaldeals";
     public int category_idx = 0;
     public int link_idx = 0;
@@ -36,6 +33,7 @@ public class eBayReader implements ItemReader<Product> {
 
         System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
         ChromeOptions options = new ChromeOptions();
+        options.setPageLoadStrategy(PageLoadStrategy.EAGER);
         options.setCapability("ignoreProtectedModeSettings", true);
         options.addArguments("--disable-popup-blocking");       //팝업안띄움
         options.addArguments("headless");                       //브라우저 안띄움
