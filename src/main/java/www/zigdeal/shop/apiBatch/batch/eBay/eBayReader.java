@@ -14,7 +14,6 @@ import www.zigdeal.shop.apiBatch.batch.Product;
 import java.util.*;
 
 public class eBayReader implements ItemReader<Product> {
-
     private final List<String> categories; //카테고리 이름
     private final List<String> categoryLinks; // 카테고리 페이지로 가는 링크
     private final List<String> links = new ArrayList<>(); // 특정 카테고리의 링크들
@@ -48,7 +47,7 @@ public class eBayReader implements ItemReader<Product> {
 
     @Override
     public Product read() {
-        if (category_idx==categoryLinks.size()) {
+        if (category_idx==categoryLinks.size() || link_idx==10) {
             driver.close();
             driver.quit();
             return null;
