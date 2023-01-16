@@ -67,7 +67,6 @@ public class AmazonConfiguration {
         return new AmazonReader();
     }
 
-    @Bean
     public CompositeItemProcessor compositeItemProcessor() {
         List<ItemProcessor> delagates = new ArrayList<>();
         delagates.add(validateProcessor());
@@ -81,24 +80,20 @@ public class AmazonConfiguration {
         return processor;
     }
 
-    @Bean
     public ItemProcessor<Product, Product> validateProcessor() {
         return product -> {
             if (product.getPrice() < 0) return null;
             else return product;
         };
     }
-    @Bean
     public ItemProcessor<Product, Product> translateProcessor() {
         return translateService::translateProduct;
     }
 
-    @Bean
     public ItemProcessor<Product, Product> priceComparisonProcessor() {
         return priceComparisonService::comparePrice;
     }
 
-    @Bean
     public MongoItemWriter<Product> productMongoItemWriter() {
         return new MongoItemWriterBuilder<Product>().template(mongoTemplate).collection("productBatchTest").build();
     }

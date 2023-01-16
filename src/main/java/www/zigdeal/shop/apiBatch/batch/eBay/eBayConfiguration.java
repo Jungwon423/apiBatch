@@ -46,7 +46,7 @@ public class eBayConfiguration {
     @Bean
     public Step eBayStep(){
         return stepBuilderFactory.get("eBayStep")
-                .<Product, Product>chunk(1)
+                .<Product, Product>chunk(10)
                 .reader(eBayItemReader())
                 .processor(compositeItemProcessor())
                 .writer(productMongoItemWriter())
@@ -58,7 +58,6 @@ public class eBayConfiguration {
         return new eBayReader();
     }
 
-    @Bean
     public CompositeItemProcessor compositeItemProcessor() {
         List<ItemProcessor> delagates = new ArrayList<>();
         delagates.add(validateProcessor());
@@ -72,24 +71,20 @@ public class eBayConfiguration {
         return processor;
     }
 
-    @Bean
     public ItemProcessor<Product, Product> validateProcessor() {
         return product -> {
             if (product.getPrice() < 0) return null;
             else return product;
         };
     }
-    @Bean
     public ItemProcessor<Product, Product> translateProcessor() {
         return translateService::translateProduct;
     }
 
-    @Bean
     public ItemProcessor<Product, Product> priceComparisonProcessor() {
         return priceComparisonService::comparePrice;
     }
 
-    @Bean
     public MongoItemWriter<Product> productMongoItemWriter() {
         return new MongoItemWriterBuilder<Product>().template(mongoTemplate).collection("productBatchTest").build();
     }

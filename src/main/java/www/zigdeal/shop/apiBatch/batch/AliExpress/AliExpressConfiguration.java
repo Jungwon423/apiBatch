@@ -1,4 +1,3 @@
-
 package www.zigdeal.shop.apiBatch.batch.AliExpress;
 
 
@@ -46,7 +45,7 @@ public class AliExpressConfiguration {
 
     @Bean
     public Step AliExpressStep(){
-        return stepBuilderFactory.get("CollectProductStep")
+        return stepBuilderFactory.get("AliExpressStep")
                 .<Product, Product>chunk(10)
                 .reader(AliExpressItemReader())
                 .processor(compositeItemProcessor())
