@@ -1,13 +1,12 @@
 spring:
   data:
     mongodb:
-      host: localhost
+      host: 3.34.96.141
       port: 27017
       database: hotdeal
-      # 배포 시에만
-#      username: taptorestart
-#      password: thisispass
-#      authentication-database: admin
+      username: taptorestart
+      password: thisispass
+      authentication-database: admin
 
   batch:
     job:
