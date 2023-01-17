@@ -69,7 +69,7 @@ public class AliExpressReader implements ItemReader<Product> {
             var crawlingTime = new Date().getTime();
 
           //  logger.info("while문 루프 도는 중");
-            while (new Date().getTime() < crawlingTime + 60000) { // 60000 = 60000 millisecond = 60 sec = 1 min
+            while (new Date().getTime() < crawlingTime + 30000) { // 60000 = 60000 millisecond = 60 sec = 1 min
                 ((JavascriptExecutor)driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
             }
             Thread.sleep(10000);
