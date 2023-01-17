@@ -94,6 +94,6 @@ public class AliExpressConfiguration {
 
     @Bean
     public MongoItemWriter<Product> productMongoItemWriter() {
-        return new MongoItemWriterBuilder<Product>().template(mongoTemplate).collection("productBatchTest").build();
+        return new MongoItemWriterBuilder<Product>().template(mongoTemplate).collection("product").build();
     }
 }

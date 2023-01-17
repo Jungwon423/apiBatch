@@ -94,6 +94,6 @@ public class AmazonConfiguration {
     }
 
     public MongoItemWriter<Product> productMongoItemWriter() {
-        return new MongoItemWriterBuilder<Product>().template(mongoTemplate).collection("productBatchTest").build();
+        return new MongoItemWriterBuilder<Product>().template(mongoTemplate).collection("product").build();
     }
 }
