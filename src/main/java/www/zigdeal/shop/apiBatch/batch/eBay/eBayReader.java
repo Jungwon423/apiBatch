@@ -12,12 +12,14 @@ import java.util.*;
 
 public class eBayReader implements ItemReader<Product> {
     private int count=0;
+    private boolean modal = true;
     private List<String> categories; //카테고리 이름
     private List<String> categoryLinks; // 카테고리 페이지로 가는 링크
     private final List<String> links = new ArrayList<>(); // 특정 카테고리의 링크들
     private final List<Double> priceList =new ArrayList<>(); // links와 대응되는 인덱스를 가지며 links의 제품의 가격
     private final Logger logger = LoggerFactory.getLogger("eBayLogger");
     private WebDriver driver;
+    private JavascriptExecutor js;
 
     //Properties 설정
     public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
@@ -39,7 +41,7 @@ public class eBayReader implements ItemReader<Product> {
         options.addArguments("headless");                       //브라우저 안띄움
         options.addArguments("__lang:euc-kr");
         this.driver = new ChromeDriver(options);
-
+        js = (JavascriptExecutor) driver;
         this.categories = getCategories();
         this.categoryLinks = getCategoryLinks();
 
@@ -163,6 +165,62 @@ public class eBayReader implements ItemReader<Product> {
             price=-1;
         }
 
+        js.executeScript(
+                "var b = document.createElement('script');" +
+                        "b.setAttribute('type', 'text/javascript');" +
+                        " b.setAttribute('charset', 'UTF-8');" +
+                        "b.setAttribute('src', 'https://ln-rules.rewardstyle.com/bookmarklet.js?r=' + Math.random() * 99999999);" +
+                        "document.body.appendChild(b);"
+        );
+        if (category_idx==0 && link_idx==0) {
+            try {
+                Thread.sleep(3000);
+            } catch (Exception e) {
+            }
+            driver.switchTo().frame("linkninja-frame-bookmarklet");
+            driver.findElement(By.xpath("//*[@id=\"login\"]/form/div[1]/div/div/div[1]/div/input")).sendKeys("egrang@daum.net");
+            try{Thread.sleep(400);}
+            catch (Exception e){}
+            driver.findElement(By.xpath("//*[@id=\"login\"]/form/div[2]/div/div/div[1]/div/input")).sendKeys("Zenius123!");
+            try{Thread.sleep(400);}
+            catch (Exception e){}
+            driver.findElement(By.xpath("//*[@id=\"login\"]/form/div[3]/button")).click();
+        }
+        try{Thread.sleep(5000);}
+        catch(Exception e){}
+        if(category_idx!=0 || link_idx!=0)
+            driver.switchTo().frame("linkninja-frame-bookmarklet");
+        if (modal) {
+            try{
+                driver.findElement(By.className("rw--popover__footer")).findElement(By.tagName("button")).click();
+                modal = false;
+                try{Thread.sleep(400);}
+                catch (Exception e){}
+            }
+            catch(Exception e){}
+        }
+        try{Thread.sleep(400);}
+        catch (Exception e){}
+        try {
+            driver.findElement(By.xpath("//*[@id=\"copy-button\"]")).click();
+        }
+        catch(Exception e){
+            price=-1;
+        }
+        if(price!=-1) {
+            try {
+                WebElement texfield = driver.findElement(By.xpath("//*[@id=\"product_caption\"]/div/div/div[1]/div/textarea"));
+                texfield.click();
+                texfield.sendKeys(Keys.CONTROL + "v");
+                link = texfield.getAttribute("value");
+            } catch (Exception e) {
+                driver.get("https://www.naver.com/");
+                WebElement textfield = driver.findElement(By.xpath("//*[@id=\"query\"]"));
+                textfield.sendKeys(Keys.CONTROL + "v");
+                link = textfield.getAttribute("value");
+            }
+        }
+
         product.setName(name);
         product.setPrice(price);
         product.setCurrency("USD");
@@ -179,6 +237,7 @@ public class eBayReader implements ItemReader<Product> {
 //        logger.info("이미지 : " + imgUrl);
 //        logger.info("link : " + link);
 //        logger.info("카테고리 : " + categories.get(category_idx));
+        System.out.println(product);
         return product;
     }
 

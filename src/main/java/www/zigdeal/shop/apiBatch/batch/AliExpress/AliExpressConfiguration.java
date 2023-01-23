@@ -78,7 +78,7 @@ public class AliExpressConfiguration {
     @Bean
     public ItemProcessor<Product, Product> validateProcessor() {
         return product -> {
-            if (product.getPrice() < 0) return null;
+            if (product.getPrice()==null || product.getPrice() < 0) return null;
             else return product;
         };
     }
