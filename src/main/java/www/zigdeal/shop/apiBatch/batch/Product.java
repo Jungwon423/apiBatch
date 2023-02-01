@@ -4,11 +4,17 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Data
 @Document(collection = "product")
 public class Product {
 
     @Id
+    private List <String> images;
+    private double rating;
+    private Double direct_tax;
+    private Double direct_shippingFee;
     private String name;
     private Double price;
     private String currency;
@@ -17,8 +23,8 @@ public class Product {
     private String categoryName;
     private String marketName;
     private String link;
-    private Double tax;
-    private Double shippingFee;
+    private Double indirect_tax;
+    private Double indirect_shippingFee;
     private int clickCount;
     private String locale;
     private Double naverPrice;

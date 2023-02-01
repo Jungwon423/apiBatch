@@ -3,6 +3,7 @@ package www.zigdeal.shop.apiBatch.batch.eBay;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemReader;
@@ -38,7 +39,7 @@ public class eBayReader implements ItemReader<Product> {
         options.setPageLoadStrategy(PageLoadStrategy.EAGER);
         options.setCapability("ignoreProtectedModeSettings", true);
         options.addArguments("--disable-popup-blocking");       //팝업안띄움
-        options.addArguments("headless");                       //브라우저 안띄움
+//        options.addArguments("headless");                       //브라우저 안띄움
         options.addArguments("__lang:euc-kr");
         this.driver = new ChromeDriver(options);
         js = (JavascriptExecutor) driver;
@@ -141,6 +142,45 @@ public class eBayReader implements ItemReader<Product> {
         String name = "";
         String imgUrl = "";
         WebElement element;
+        double star = -1;
+        List <String> images = new ArrayList<>();
+        List <WebElement> elements = driver.findElements(By.cssSelector("button[class=\"ux-image-filmstrip-carousel-item image-treatment image\"]"));
+        System.out.println(elements.size());
+        try {
+            Thread.sleep(1000);
+            for (WebElement element2 : elements) {
+                images.add(element2.findElement(By.tagName("img")).getAttribute("src"));
+            }
+        }
+        catch(Exception e){
+            System.out.println("이미지들 모 ㅅ가져옴");
+        }
+        try { //별점
+            element = driver.findElement(By.id("review-ratings-cntr"));
+            String a= element.getAttribute("aria-label");
+            int cnt=0;
+            int pre=-1;
+            String str_star ="";
+            for (int i=0 ;i<a.length(); i++){
+                if (a.charAt(i)=='개'){
+                    cnt++;
+                    if(cnt==2){
+                        for (int j=pre+1; j<i; j++){
+                            str_star+=a.charAt(j);
+                        }
+                        break;
+                    }
+                }
+                else if(a.charAt(i)==' '){
+                    pre=i;
+                }
+            }
+            star=Double.valueOf(str_star);
+        }
+        catch(Exception e){
+        }
+
+
         try { // name
             element = driver.findElement(By.className("x-item-title__mainTitle"));
             name = element.findElement(By.tagName("span")).getText();
@@ -220,7 +260,8 @@ public class eBayReader implements ItemReader<Product> {
                 link = textfield.getAttribute("value");
             }
         }
-
+        product.setImages(images);
+        product.setRating(star);
         product.setName(name);
         product.setPrice(price);
         product.setCurrency("USD");
@@ -230,6 +271,9 @@ public class eBayReader implements ItemReader<Product> {
         product.setMarketName("eBay");
         product.setLink(link);
         product.setLocale("kr");
+        System.out.println(link);
+        System.out.println(star);
+        System.out.println(images);
 //        logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
 //        logger.info("이름 : " + name);
 //        logger.info("가격 : " + priceList.get(link_idx).toString());
@@ -237,7 +281,6 @@ public class eBayReader implements ItemReader<Product> {
 //        logger.info("이미지 : " + imgUrl);
 //        logger.info("link : " + link);
 //        logger.info("카테고리 : " + categories.get(category_idx));
-        System.out.println(product);
         return product;
     }
 
