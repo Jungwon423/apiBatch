@@ -11,11 +11,11 @@ import java.util.List;
 public class Product {
 
     @Id
+    private String name;
     private List <String> images;
     private double rating;
     private Double direct_tax;
     private Double direct_shippingFee;
-    private String name;
     private Double price;
     private String currency;
     private Double discountRate;
