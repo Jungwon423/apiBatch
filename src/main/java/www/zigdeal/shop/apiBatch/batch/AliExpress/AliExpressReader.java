@@ -56,13 +56,13 @@ public class AliExpressReader implements ItemReader<Product> {
         product.setName(now.getProductTitle());
         product.setImageUrl(now.getProductMainImageUrl());
         product.setLocale("kr");
-        product.setPrice(Double.valueOf(now.getTargetAppSalePrice()));
+        product.setPrice(Double.parseDouble(now.getTargetAppSalePrice()));
         product.setImages(now.getProductSmallImageUrls());
         product.setCurrency("KRW");
         String rating = now.getEvaluateRate();
         if(rating!=null) rating = rating.substring(0,rating.length()-1);
         else rating="-1";
-        product.setRating(Double.valueOf(rating));
+        product.setRating(Double.parseDouble(rating));
         product.setMarketName("AliExpress");
         product.setLink(now.getPromotionLink());
         System.out.println(product);
