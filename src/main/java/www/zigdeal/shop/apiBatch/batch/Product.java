@@ -13,7 +13,7 @@ public class Product {
     @Id
     private String name;
     private List <String> images;
-    private double rating;
+    private Double rating;
     private Double direct_tax;
     private Double direct_shippingFee;
     private Double price;

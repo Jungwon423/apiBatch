@@ -23,7 +23,7 @@ public class AmazonReader implements ItemReader<Product> {
     public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
 //    public static String WEB_DRIVER_PATH = "/home/ubuntu/Downloads/chromedriver";
     public static String TARGET_URL = "https://www.amazon.com/-/ko/gp/goldbox?ref_=nav_cs_gb&language=ko_KR&currency=USD";
-    public static int CrollingNumber = 300;
+    public static int CrollingNumber = 30;
     String pageUrlprefix = "https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb&deals-widget=%257B%2522version%2522%253A1%252C%2522viewIndex%2522%253A";
     String pageUrlsuffix = "%252C%2522presetId%2522%253A%2522AE6BA37878475F9AE4C584B7AD5E12BE%2522%252C%2522sorting%2522%253A%2522BY_SCORE%2522%257D#";
 
@@ -53,7 +53,7 @@ public class AmazonReader implements ItemReader<Product> {
         options.setPageLoadStrategy(PageLoadStrategy.EAGER);
         options.setCapability("ignoreProtectedModeSettings", true);
         options.addArguments("--disable-popup-blocking");       //팝업안띄움
-        options.addArguments("headless");                       //브라우저 안띄움
+       // options.addArguments("headless");                       //브라우저 안띄움
         List<String> firstLinks = new ArrayList<>();
         driver = new ChromeDriver(options);
         driver.get(TARGET_URL);
@@ -78,6 +78,7 @@ public class AmazonReader implements ItemReader<Product> {
                     for (WebElement temp : temps) {      //elements로 받아서 temps로 addall 하면 오류가 떠서 String 리스트로 받았음.
                         firstLinks.add(temp.findElement(By.className("a-link-normal")).getAttribute("href"));
                     }
+                    System.out.println(firstLinks.size());
                 }
             }
         } catch (Exception e) {
@@ -91,37 +92,34 @@ public class AmazonReader implements ItemReader<Product> {
         logger.info("최종 link 가져오는 중....");
         List<String> firstLinks = CrawlFirstLevel();
 
-        String comp1 = "https://www.amazon.com/dp/";   //dp인것 (kindle 스토어 삭제)
-        int len = comp1.length();
-        String comp2 = "https://www.amazon.com/gp/";   //gp인것
-        String comp3 = "https://www.amazon.com/stores/"; //stores 오류
-        int len2 = comp3.length();
+        String cmp = "https://www.amazon.com/deal"; // 가능성
 
         List<String> links = new ArrayList<>();
         for (int i = 0; i < CrollingNumber; i++) {      //링크 받고 싶은 만큼 선택 (걸러져서 조금 적게 나옴)
             String testLink = firstLinks.get(i);
+            System.out.println(testLink);
             try {
                 driver.get(testLink);
                 driver.findElement(By.id("productTitle"));   //바로 제품페이지로 가서 productTitle을 찾을 때
                 links.add(testLink);
             } catch (Exception e) {
+                if (!testLink.substring(0,cmp.length()).equals(cmp)) continue;
                 if (testLink.contains("/promotion/")) {    //프로모션 페이지로 갈 때
                     continue;
                 }
-                driver.get(testLink);
-                if (testLink.substring(0, len2).equals(comp3)) continue;  //stores...?
-
-                WebElement Unavailable = driver.findElement(By.className("a-spacing-base"));    //상품 다 팔려서 없다고 뜰 때
-                if (Unavailable.getText().contains("unavailable")) continue;
-                if (Unavailable.getText().contains("이 딜은 현재 이용할 수 없지만")) continue;
-
+                try {
+                    WebElement Unavailable = driver.findElement(By.className("a-spacing-base"));    //상품 다 팔려서 없다고 뜰 때
+                    if (Unavailable.getText().contains("unavailable")) continue;
+                    if (Unavailable.getText().contains("이 딜은 현재 이용할 수 없지만")) continue;
+                }
+                catch(Exception g){}
 
                 try {    //링크 여러개 뜰 때 제품 하나 가져오기
-                    List<WebElement> ele = driver.findElements(By.className("a-link-normal"));
-                    String link = ele.get(4).getAttribute("href");
-                    if (link.length() < len || (link.substring(0, len).equals(comp1))) continue;   //킨들스토어 어쩌구 제거
-                    if (link.substring(0, len).equals(comp2)) continue;   //gp로 홈페이지같은거 뜨는 거 제거
-                    links.add(link);
+                    List<WebElement> ele = driver.findElements(By.className("a-list-item"));
+                    for (WebElement element : ele){
+                        String now = element.findElement(By.className("a-link-normal")).getAttribute("href");
+                        links.add(now);
+                    }
                 } catch (Exception e2) {    //나머지 경우는 그냥 제외했음 어지럽다
                     logger.error("SecondLevel 예외 제외함");
                 }
@@ -138,16 +136,18 @@ public class AmazonReader implements ItemReader<Product> {
         product.setMarketName("Amazon");
         product.setLocale("kr");
         product.setCurrency("USD");
-        try {
+        System.out.println(link);
+        try {// name
             driver.get(link);
             Thread.sleep(1500);
             WebElement productTitle = driver.findElement(By.id("productTitle"));
             product.setName(productTitle.getText()); //제품이름
             //logger.info("제품이름 : " + productTitle.getText());
         } catch (Exception e) {
-            product.setName("empty");
+            product.setPrice(-1d);
         }
-        try {
+
+        try {// Price
             WebElement price = driver.findElement(By.className("a-price"));
             String priceText = price.getText();
             if (!priceText.contains(".")) {
@@ -161,46 +161,71 @@ public class AmazonReader implements ItemReader<Product> {
             product.setPrice(-1d);
         }
 
-        List<String> DiscountList = new ArrayList<>();
         try {
-            WebElement dis = driver.findElement(By.className("savingsPercentage"));
-            String intDis = dis.getText().replaceAll("[^0-9]", "");
-            DiscountList.add(intDis);
-        } catch (Exception e) {
-            List<WebElement> ele = driver.findElements(By.className("a-color-price"));
-            for (WebElement el : ele) {    //없으면 color-price 클래스 다 긁어오기
-                String discountRate = el.getText();
-                if (discountRate.contains("%")) {
-                    int a = discountRate.lastIndexOf("%");
-                    String dis = discountRate.substring(a - 2, a);
-                    DiscountList.add(dis);
-                }
-            }
-        }
-        if (DiscountList.isEmpty()) {
-            product.setDiscountRate(0d); //할인율
-        } else {
-            String discount = DiscountList.get(0).replaceAll("[^0-9]", "");
-            product.setDiscountRate(Double.parseDouble(discount)); //할인율
-            //logger.info(discount);
-        }
-        try {
-            WebElement imgLink = driver.findElement(By.className("a-dynamic-image"));
+            WebElement imgLink = driver.findElement(By.id("landingImage"));
             product.setImageUrl(imgLink.getAttribute("src")); //이미지 링크
             //logger.info("이미지링크 : " + imgLink.getAttribute("src"));
         } catch (Exception e) {
-            product.setImageUrl("null");
+            product.setPrice(-1d);
             //logger.error("이미지 에러");
         }
 
-        try {    //카테고리 없는 사이트 예시 "https://www.amazon.com/Beats-Fit-Pro-Kim-Kardashian/dp/B0B6LW47C8?ref_=Oct_DLandingS_D_f56073f1_61&th=1"
-            WebElement category = driver.findElement(By.id("wayfinding-breadcrumbs_feature_div"));
-            WebElement category2 = category.findElement(By.className("a-link-normal"));
-            product.setCategoryName(category2.getText()); //카테고리
-            //logger.info("카테고리 : " + category2.getText());
-        } catch (Exception e) {
-            product.setCategoryName("null");
+        List<String> images= new ArrayList<>();// images
+        List<WebElement> elements = driver.findElements(By.cssSelector("li[class=\"a-spacing-small item imageThumbnail a-declarative\"]"));
+        for (WebElement element : elements) {
+            element = element.findElement(By.tagName("img"));
+            images.add(element.getAttribute("src"));
         }
+        if(images.size()==0){
+            product.setPrice(-1d);
+        }
+
+        try {// Rating
+            WebElement element= driver.findElement(By.id("acrPopover"));
+            String [] a = element.getAttribute("title").split(" ");
+            product.setRating(Double.parseDouble(a[a.length-1]));
+        }
+        catch(Exception e){
+            product.setRating(-1d);
+        }
+
+        try {
+            Thread.sleep(1000);
+            WebElement element= driver.findElement(By.id("amazonGlobal_feature_div"));
+            element = element.findElement(By.cssSelector("a[class=\"a-popover-trigger a-declarative\"]"));
+            element.click();
+            element = driver.findElement(By.cssSelector("div[class=\"a-popover a-popover-no-header a-declarative a-arrow-bottom\"]"));
+            elements = element.findElements(By.tagName("tr"));
+            System.out.println("hi" + elements.size());
+            String ship = elements.get(1).findElement(By.cssSelector("td[class=\"a-span2 a-text-right\"]")).findElement(By.tagName("span")).getText();
+            String direct_ship = "";
+            boolean on = false;
+            for (int i=0; i<ship.length(); i++){
+                if (!on){
+                    if(ship.charAt(i)=='$') on=true;
+                    continue;
+                }
+                direct_ship+=ship.charAt(i);
+            }
+            System.out.println("ship = " + direct_ship);
+            String tax =  elements.get(2).findElement(By.cssSelector("td[class=\"a-span2 a-text-right\"]")).findElement(By.tagName("span")).getText();
+            on = false;
+            String direct_tax = "";
+            for (int i=0; i<tax.length(); i++){
+                if (!on){
+                    if(tax.charAt(i)=='$') on=true;
+                    continue;
+                }
+                direct_tax+=tax.charAt(i);
+            }
+            System.out.println("tax = "  + direct_tax);
+            product.setDirect_shippingFee(Double.parseDouble(direct_ship));
+            product.setDirect_tax(Double.parseDouble(direct_tax));
+        }
+        catch(Exception e){
+            product.setPrice(-1d);
+        }
+        product.setImages(images);
         //logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
         //logger.info(product.toString());
         //logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
