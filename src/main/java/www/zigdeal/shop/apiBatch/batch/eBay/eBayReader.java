@@ -260,7 +260,7 @@ public class eBayReader implements ItemReader<Product> {
                 link = textfield.getAttribute("value");
             }
         }
-        product.setImages(images);
+        product.setSubImageUrl(images);
         product.setRating(star);
         product.setName(name);
         product.setPrice(price);

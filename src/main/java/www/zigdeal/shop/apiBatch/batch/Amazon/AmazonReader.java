@@ -97,13 +97,12 @@ public class AmazonReader implements ItemReader<Product> {
         List<String> links = new ArrayList<>();
         for (int i = 0; i < CrollingNumber; i++) {      //링크 받고 싶은 만큼 선택 (걸러져서 조금 적게 나옴)
             String testLink = firstLinks.get(i);
-            System.out.println(testLink);
             try {
                 driver.get(testLink);
                 driver.findElement(By.id("productTitle"));   //바로 제품페이지로 가서 productTitle을 찾을 때
                 links.add(testLink);
             } catch (Exception e) {
-                if (!testLink.substring(0,cmp.length()).equals(cmp)) continue;
+                if (!testLink.startsWith(cmp)) continue;
                 if (testLink.contains("/promotion/")) {    //프로모션 페이지로 갈 때
                     continue;
                 }
@@ -112,7 +111,7 @@ public class AmazonReader implements ItemReader<Product> {
                     if (Unavailable.getText().contains("unavailable")) continue;
                     if (Unavailable.getText().contains("이 딜은 현재 이용할 수 없지만")) continue;
                 }
-                catch(Exception g){}
+                catch(Exception ignored){}
 
                 try {    //링크 여러개 뜰 때 제품 하나 가져오기
                     List<WebElement> ele = driver.findElements(By.className("a-list-item"));
@@ -198,34 +197,34 @@ public class AmazonReader implements ItemReader<Product> {
             elements = element.findElements(By.tagName("tr"));
             System.out.println("hi" + elements.size());
             String ship = elements.get(1).findElement(By.cssSelector("td[class=\"a-span2 a-text-right\"]")).findElement(By.tagName("span")).getText();
-            String direct_ship = "";
+            StringBuilder direct_ship = new StringBuilder();
             boolean on = false;
             for (int i=0; i<ship.length(); i++){
                 if (!on){
                     if(ship.charAt(i)=='$') on=true;
                     continue;
                 }
-                direct_ship+=ship.charAt(i);
+                direct_ship.append(ship.charAt(i));
             }
             System.out.println("ship = " + direct_ship);
             String tax =  elements.get(2).findElement(By.cssSelector("td[class=\"a-span2 a-text-right\"]")).findElement(By.tagName("span")).getText();
             on = false;
-            String direct_tax = "";
+            StringBuilder direct_tax = new StringBuilder();
             for (int i=0; i<tax.length(); i++){
                 if (!on){
                     if(tax.charAt(i)=='$') on=true;
                     continue;
                 }
-                direct_tax+=tax.charAt(i);
+                direct_tax.append(tax.charAt(i));
             }
             System.out.println("tax = "  + direct_tax);
-            product.setDirect_shippingFee(Double.parseDouble(direct_ship));
-            product.setDirect_tax(Double.parseDouble(direct_tax));
+            product.setDirect_shippingFee(Double.parseDouble(direct_ship.toString()));
+            product.setDirect_tax(Double.parseDouble(direct_tax.toString()));
         }
         catch(Exception e){
             product.setPrice(-1d);
         }
-        product.setImages(images);
+        product.setSubImageUrl(images);
         //logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
         //logger.info(product.toString());
         //logger.info("---------- 개별 제품 크롤링 결과입니다 ----------");
