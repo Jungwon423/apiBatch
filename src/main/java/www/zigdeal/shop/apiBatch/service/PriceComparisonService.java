@@ -42,8 +42,8 @@ public class PriceComparisonService {
         }
         for (Object li : objectList) {
             naverPrice = ObjectToDouble(li);
-            category = getCategory(li);
-            category2 = getCategory2(li);
+            category = getCategory(li).replaceAll("/", ",");
+            category2 = getCategory2(li).replaceAll("/",",");
         }
 
 
