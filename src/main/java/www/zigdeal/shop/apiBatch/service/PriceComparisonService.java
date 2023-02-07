@@ -29,21 +29,28 @@ public class PriceComparisonService {
 
         // Price filtering
         Double productPrice = product.getPrice();
+        Double productTax = product.getDirect_tax();
+        Double productShip = product.getDirect_shippingFee();
         String responseBody = SearchAPI(productName);
         List<?> objectList = responseStrToList(responseBody);
 
         Double naverPrice = 0.0;
         String category ="";
+        String category2= "";
         if (objectList.isEmpty()){
             naverPrice = 0.0;
         }
         for (Object li : objectList) {
             naverPrice = ObjectToDouble(li);
-            category = getCategory(li);
+            category = getCategory(li).replaceAll("/", ",");
+            category2 = getCategory2(li).replaceAll("/",",");
         }
 
-        if (productPrice > naverPrice) return null;
+
+
+        if (productPrice + productTax + productShip> naverPrice) return null;
         product.setCategoryName(category);
+        product.setCategoryName2(category2);
         product.setNaverPrice(naverPrice);
 
         return product;
@@ -52,13 +59,18 @@ public class PriceComparisonService {
     public Product CalculateKRWPrice (Product product) {
         Double productPrice = product.getPrice();
         String currency = product.getCurrency();
-
+        Double productShip = product.getDirect_shippingFee();
+        Double productTax = product.getDirect_tax();
         if (currency.equals("KRW")) return product;
         else {
             Double USD = 0.0;
             if (exchangeRepository.findById("USD").isPresent()) USD = exchangeRepository.findById("USD").get().getExchangeRate();
             product.setCurrency("KRW");
             product.setPrice(productPrice*USD);
+            if (product.getMarketName().equals("Amazon")) {
+                product.setDirect_shippingFee(productShip * USD);
+                product.setDirect_tax(productTax * USD);
+            }
             return product;
         }
     }
@@ -145,6 +157,12 @@ public class PriceComparisonService {
     private String getCategory(Object rawObj){
         JSONObject JsonLi = (JSONObject) rawObj;
         Object objLi = JsonLi.get("category1");
+        return (String)objLi;
+    }
+
+    private String getCategory2(Object rawObj){
+        JSONObject JsonLi = (JSONObject) rawObj;
+        Object objLi = JsonLi.get("category2");
         return (String)objLi;
     }
 }

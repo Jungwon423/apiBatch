@@ -80,14 +80,21 @@ public class AliExpressReader implements ItemReader<Product> {
         product.setImageUrl(now.getProductMainImageUrl());
         product.setLocale("kr");
         product.setPrice(Double.parseDouble(now.getTargetAppSalePrice()));
-        product.setImages(now.getProductSmallImageUrls());
+        product.setSubImageUrl(now.getProductSmallImageUrls());
         product.setCurrency("KRW");
         String rating = now.getEvaluateRate();
-        if(rating!=null) rating = rating.substring(0,rating.length()-1);
-        else rating="-1";
-        product.setRating(Double.parseDouble(rating));
+        if(rating!=null) {
+            rating = rating.substring(0, rating.length() - 1);
+            double a = Double.parseDouble(rating);
+            double b = 20d;
+            a= a/b;
+            a= (double) Math.round(a*10d)/10d;
+            product.setRating(a);
+        }
+        else product.setRating(-1d);
         product.setMarketName("AliExpress");
         product.setLink(now.getPromotionLink());
+        product.setDirect_shippingFee(0d);
         driver.get(product.getLink());
         try {
             String price = driver.findElement(By.className("product-price-value")).getText();
@@ -102,7 +109,7 @@ public class AliExpressReader implements ItemReader<Product> {
                 String result = a[1].replaceAll("[^0-9]", "");
                 product.setPrice(Double.parseDouble(result));
             }
-            catch(Exception f){
+            catch(Exception ignored){
             }
         }
         System.out.println(product);
