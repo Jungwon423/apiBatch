@@ -23,7 +23,7 @@ public class AmazonReader implements ItemReader<Product> {
     public static String WEB_DRIVER_PATH = "C:/chromedriver.exe";
 //    public static String WEB_DRIVER_PATH = "/home/ubuntu/Downloads/chromedriver";
     public static String TARGET_URL = "https://www.amazon.com/-/ko/gp/goldbox?ref_=nav_cs_gb&language=ko_KR&currency=USD";
-    public static int CrollingNumber = 30;
+    public static int CrollingNumber = 20;
     String pageUrlprefix = "https://www.amazon.com/gp/goldbox?ref_=nav_cs_gb&deals-widget=%257B%2522version%2522%253A1%252C%2522viewIndex%2522%253A";
     String pageUrlsuffix = "%252C%2522presetId%2522%253A%2522AE6BA37878475F9AE4C584B7AD5E12BE%2522%252C%2522sorting%2522%253A%2522BY_SCORE%2522%257D#";
 
@@ -53,7 +53,7 @@ public class AmazonReader implements ItemReader<Product> {
         options.setPageLoadStrategy(PageLoadStrategy.EAGER);
         options.setCapability("ignoreProtectedModeSettings", true);
         options.addArguments("--disable-popup-blocking");       //팝업안띄움
-       // options.addArguments("headless");                       //브라우저 안띄움
+        options.addArguments("headless");                       //브라우저 안띄움
         List<String> firstLinks = new ArrayList<>();
         driver = new ChromeDriver(options);
         driver.get(TARGET_URL);
@@ -172,9 +172,17 @@ public class AmazonReader implements ItemReader<Product> {
         List<String> images= new ArrayList<>();// images
         List<WebElement> elements = driver.findElements(By.cssSelector("li[class=\"a-spacing-small item imageThumbnail a-declarative\"]"));
         for (WebElement element : elements) {
-            element = element.findElement(By.tagName("img"));
-            images.add(element.getAttribute("src"));
+            element.click();
         }
+        elements = driver.findElements(By.className("imgTagWrapper"));
+        for (WebElement element : elements){
+            try{
+                images.add(element.findElement(By.tagName("img")).getAttribute("src"));
+            }
+            catch (Exception e){
+            }
+        }
+        for (String i: images) System.out.println(i);
         if(images.size()==0){
             product.setPrice(-1d);
         }
@@ -195,7 +203,6 @@ public class AmazonReader implements ItemReader<Product> {
             element.click();
             element = driver.findElement(By.cssSelector("div[class=\"a-popover a-popover-no-header a-declarative a-arrow-bottom\"]"));
             elements = element.findElements(By.tagName("tr"));
-            System.out.println("hi" + elements.size());
             String ship = elements.get(1).findElement(By.cssSelector("td[class=\"a-span2 a-text-right\"]")).findElement(By.tagName("span")).getText();
             StringBuilder direct_ship = new StringBuilder();
             boolean on = false;
